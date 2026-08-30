@@ -1,49 +1,239 @@
+/* =========================================================
+   PmPro.ai — Design tokens
+   Warm terracotta brand on dark canvas
+   ========================================================= */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Brand (terracotta) */
+  --brand-50:  #fdf6f1;
+  --brand-100: #fbe9dd;
+  --brand-200: #f6d3bd;
+  --brand-300: #eeb391;
+  --brand-400: #e08a5f;
+  --brand-500: #cf6a3c;
+  --brand-600: #b8542c;
+  --brand-700: #9a4220;
+  --brand-800: #83371b;
+  --brand-900: #5f2712;
+  --brand-950: #3a170b;
+
+  --brand-tint-bg:     color-mix(in srgb, var(--brand-600) 6%,  transparent);
+  --brand-tint-border: color-mix(in srgb, var(--brand-600) 14%, transparent);
+  --brand-tint-strong: color-mix(in srgb, var(--brand-600) 28%, transparent);
+
+  /* Stone neutrals */
+  --stone-50:  #fafaf9;
+  --stone-100: #f5f5f4;
+  --stone-200: #e7e5e4;
+  --stone-300: #d6d3d1;
+  --stone-400: #a8a29e;
+  --stone-500: #78716c;
+  --stone-600: #57534e;
+  --stone-700: #44403c;
+  --stone-800: #292524;
+  --stone-900: #1c1917;
+  --stone-950: #0c0a09;
+  --white: #ffffff;
+  --black: #000000;
+
+  /* Status */
+  --green-50:  #f0fdf4;
+  --green-100: #dcfce7;
+  --green-600: #16a34a;
+  --green-700: #15803d;
+  --green-800: #166534;
+  --red-50:    #fef2f2;
+  --red-800:   #991b1b;
+  --amber-50:  #fffbeb;
+  --amber-600: #d97706;
+  --amber-700: #b45309;
+  --amber-800: #92400e;
+  --sky-800:   #075985;
+  --teal-100:  #ccfbf1;
+  --teal-800:  #115e59;
+  --purple-100:#f3e8ff;
+  --purple-500:#a855f7;
+  --purple-800:#6b21a8;
+
+  /* Semantic tokens */
+  --bg:      var(--white);
+  --fg1:     var(--stone-900);
+  --fg2:     #6f665f;
+  --fg3:     var(--stone-400);
+  --canvas:  #2b1a12;
+  --card:    var(--white);
+  --muted:   #fbf7f3;
+  --accent:  var(--brand-100);
+  --border:  #ece3da;
+  --input:   #e0d5c9;
+
+  --primary:              var(--brand-700);
+  --primary-fg:           var(--stone-50);
+  --primary-hover:        var(--brand-600);
+  --primary-active-shadow: 0 0 0 2px var(--white), 0 0 0 4px var(--brand-700);
+
+  --secondary:       var(--brand-50);
+  --secondary-hover: var(--brand-100);
+  --ring:            color-mix(in srgb, var(--brand-700) 15%, transparent);
+
+  /* Shadows */
+  --shadow-sm:      0 1px 2px 0 rgba(0,0,0,.05);
+  --shadow-default: 0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -2px rgba(0,0,0,.1);
+  --shadow-lg:      0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -4px rgba(0,0,0,.1);
+
+  /* Radius */
+  --radius-sm:   2px;
+  --radius-md:   6px;
+  --radius-lg:   8px;
+  --radius-xl:   12px;
+
+  /* Motion */
+  --ease-out:      cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 150ms;
+  --duration-base: 200ms;
+
+  /* Font stacks (set via CSS vars fed from Next/font) */
+  --font-sans:  var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-plex-serif), ui-serif, Georgia, serif;
+  --font-mono:  var(--font-dm-mono), 'SF Mono', ui-monospace, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ── Animations ── */
+@keyframes agentIn {
+  0%   { opacity: 0; transform: translateY(8px);  }
+  7%   { opacity: 1; transform: translateY(0);    }
+  86%  { opacity: 1; transform: translateY(0);    }
+  93%  { opacity: 0; transform: translateY(-5px); }
+  100% { opacity: 0; transform: translateY(-5px); }
+}
+@keyframes lineGrow {
+  0%,40%   { transform: scaleX(0); }
+  60%,88%  { transform: scaleX(1); }
+  95%,100% { transform: scaleX(0); }
+}
+@keyframes caretBlink {
+  0%,49%  { opacity: 1; }
+  50%,100%{ opacity: 0; }
+}
+@keyframes pulseDot {
+  0%,100% { opacity: .25; }
+  50%     { opacity: 1;   }
+}
+@keyframes barRise {
+  0%   { transform: scaleY(.15); }
+  100% { transform: scaleY(1);   }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition-duration: 0ms !important; }
 }
 
-html {
-  height: 100%;
-}
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; }
 
-html,
+html { scroll-behavior: smooth; }
+
 body {
-  max-width: 100vw;
-  overflow-x: hidden;
+  margin: 0;
+  background: var(--canvas);
+  color: var(--fg1);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-body {
-  min-height: 100%;
+img, svg { max-width: 100%; display: block; }
+
+a { color: var(--primary); text-decoration: none; transition: color var(--duration-fast); }
+a:hover { color: var(--primary-hover); }
+
+/* ── Page shell ── */
+.page-shell {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 8px;
   display: flex;
   flex-direction: column;
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  gap: 8px;
 }
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
+/* ── Card (the white surface each section sits on) ── */
+.card {
+  background: var(--card);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
 }
 
-a {
-  color: inherit;
+/* ── Tag / badge ── */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+.tag-brand {
+  background: var(--brand-tint-bg);
+  border: 1px solid var(--brand-tint-border);
+  color: var(--brand-800);
+}
+.tag-brand-solid {
+  background: var(--brand-800);
+  color: var(--stone-50);
+}
+
+/* ── Primary button ── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--primary);
+  color: var(--primary-fg);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
   text-decoration: none;
+  transition: background var(--duration-fast);
+}
+.btn-primary:hover { background: var(--primary-hover); color: var(--primary-fg); }
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--fg1);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background var(--duration-fast);
+}
+.btn-ghost:hover { background: var(--stone-100); color: var(--fg1); }
+
+/* ── Mono label ── */
+.mono-label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--fg2);
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .page-shell { padding: 4px; gap: 4px; }
 }
+
+/* Hide scrollbar on horizontal scroll containers */
+[data-scroller]::-webkit-scrollbar { display: none; }
+[data-scroller] { scrollbar-width: none; -ms-overflow-style: none; }
