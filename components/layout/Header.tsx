@@ -1,4 +1,19 @@
+"use client";
+
+import { useAuth } from "@/lib/auth-context";
+
+function initials(name: string) {
+  return name
+    .split(/[\s@.]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(s => s[0].toUpperCase())
+    .join("");
+}
+
 export default function Header() {
+  const { user, signOut } = useAuth();
+
   return (
     <header style={{
       display: "flex",
@@ -43,9 +58,41 @@ export default function Header() {
         ))}
       </nav>
 
-      <a href="#waitlist" className="btn-primary" style={{ height: 32, padding: "0 14px" }}>
-        Join the waitlist
-      </a>
+      {user ? (
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "0 10px", height: 32, borderRadius: 6, border: "1px solid var(--border)", background: "var(--muted)" }}>
+            <span style={{
+              width: 20, height: 20, borderRadius: "50%",
+              background: "var(--brand-100)", border: "1px solid var(--brand-200)",
+              color: "var(--brand-900)", fontSize: 11, fontWeight: 600,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0,
+            }}>{initials(user.name)}</span>
+            <span style={{ fontSize: 13, color: "var(--fg1)", maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {user.name}
+            </span>
+          </div>
+          <a href="#playground" className="btn-primary" style={{ height: 32, padding: "0 14px" }}>
+            Open workspace →
+          </a>
+          <button
+            onClick={signOut}
+            style={{
+              height: 32, padding: "0 10px", border: "1px solid var(--border)",
+              borderRadius: 6, background: "transparent", fontSize: 13,
+              color: "var(--fg2)", cursor: "pointer",
+            }}
+            onMouseEnter={e => (e.currentTarget.style.color = "var(--fg1)")}
+            onMouseLeave={e => (e.currentTarget.style.color = "var(--fg2)")}
+          >
+            Sign out
+          </button>
+        </div>
+      ) : (
+        <a href="#waitlist" className="btn-primary" style={{ height: 32, padding: "0 14px" }}>
+          Join the waitlist
+        </a>
+      )}
     </header>
   );
 }

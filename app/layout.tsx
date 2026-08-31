@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, IBM_Plex_Serif, DM_Mono } from "next/font/google";
 import "./globals.css";
+import Providers from "@/components/providers";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -33,7 +34,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${inter.variable} ${plexSerif.variable} ${dmMono.variable}`}
     >
-      <body>{children}</body>
+      <body><Providers>{children}</Providers></body>
     </html>
   );
 }

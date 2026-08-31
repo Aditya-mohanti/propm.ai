@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useAuth } from "@/lib/auth-context";
 
 type Tab = "doc" | "sheet" | "proto" | "dash";
 
@@ -178,86 +179,190 @@ const CANVAS_META: Record<Tab, { title: string; meta: string }> = {
   dash:  { title: "Dashboard canvas", meta: "last 12w"          },
 };
 
+const PROJECTS = [
+  {
+    folder: "GROWTH",
+    icon: "↗",
+    count: "3",
+    items: [
+      { name: "Mobile onboarding", goal: "Fix step-2 drop-off", sub: "3 runs · updated today", active: true },
+      { name: "Referral loop", goal: "Increase D7 retention", sub: "1 run · 2d ago", active: false },
+    ],
+  },
+  {
+    folder: "PLATFORM",
+    icon: "⊞",
+    count: "2",
+    items: [
+      { name: "API docs revamp", goal: "Cut support tickets 40%", sub: "2 runs · 4d ago", active: false },
+      { name: "Permissions model", goal: "Unblock enterprise tier", sub: "draft", active: false },
+    ],
+  },
+];
+
+function ProjectsSidebar({ activeProject }: { activeProject: string }) {
+  return (
+    <div style={{
+      width: 240, flexShrink: 0,
+      border: "1px solid var(--border)", borderRadius: 8,
+      background: "var(--muted)", display: "flex", flexDirection: "column",
+      alignSelf: "flex-start",
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "12px 14px", borderBottom: "1px solid var(--border)" }}>
+        <span style={{ fontSize: 13, fontWeight: 600, marginRight: "auto" }}>Projects</span>
+        <span style={{
+          width: 24, height: 24, borderRadius: 6, border: "1px solid var(--border)",
+          background: "var(--card)", display: "flex", alignItems: "center",
+          justifyContent: "center", fontSize: 13, color: "var(--brand-700)", cursor: "pointer",
+        }}>+</span>
+      </div>
+      <div style={{ padding: 8, display: "flex", flexDirection: "column", gap: 4 }}>
+        {PROJECTS.map(g => (
+          <div key={g.folder} style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 8px" }}>
+              <span style={{ fontSize: 12, color: "var(--fg2)" }}>▾</span>
+              <span style={{ fontSize: 11, color: "var(--brand-700)" }}>{g.icon}</span>
+              <span style={{ fontSize: 12, fontWeight: 600, color: "var(--fg1)", letterSpacing: "0.02em" }}>{g.folder}</span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg2)", marginLeft: "auto" }}>{g.count}</span>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4, paddingLeft: 10, marginLeft: 6, borderLeft: "1px solid var(--border)" }}>
+              {g.items.map(p => (
+                <div key={p.name} style={{
+                  display: "flex", flexDirection: "column", gap: 2,
+                  padding: "8px 10px", borderRadius: 6, cursor: "pointer",
+                  background: p.active ? "var(--card)" : "transparent",
+                  border: p.active ? "1px solid var(--brand-tint-strong)" : "1px solid transparent",
+                }}>
+                  <span style={{ fontSize: 13, fontWeight: p.active ? 500 : 400, color: p.active ? "var(--fg1)" : "var(--fg1)" }}>{p.name}</span>
+                  <span style={{ fontSize: 12, color: "var(--fg2)", lineHeight: "16px" }}>{p.goal}</span>
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg2)" }}>{p.sub}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={{ padding: "12px 14px", borderTop: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: 4 }}>
+        <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg2)" }}>archive · 6 projects</span>
+        <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg2)" }}>shared with me · 2</span>
+      </div>
+    </div>
+  );
+}
+
 export default function Playground() {
+  const { user } = useAuth();
   const [tab, setTab] = useState<Tab>("proto");
 
   return (
     <div id="playground" style={{ background: "var(--card)", borderRadius: 12, padding: 40 }}>
       <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 32, marginBottom: 20 }}>
         <div>
-          <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg2)", marginBottom: 8 }}>idea playground · runs on credits</div>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg2)", marginBottom: 8 }}>
+            {user ? "your workspace · projects" : "idea playground · runs on credits"}
+          </div>
           <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 30, fontWeight: 600, letterSpacing: "-0.01em", margin: 0 }}>
-            Brainstorm an idea. Or hand it your Notion.
+            {user ? "Your agents. Your context. Your output." : "Brainstorm an idea. Or hand it your Notion."}
           </h2>
           <p style={{ fontSize: 16, lineHeight: "26px", color: "var(--fg2)", marginTop: 10, maxWidth: "62ch", textWrap: "pretty" as const }}>
-            Type a half-formed idea, paste a Notion page, or drop a file. One credit turns it into a real artifact — a PRD you can ship, a sheet that adds up, a clickable prototype, a dashboard with the query behind it.
+            {user
+              ? "Every project is a goal with its own agents, canvases, context and credits. Pick a project or start a new one."
+              : "Type a half-formed idea, paste a Notion page, or drop a file. One credit turns it into a real artifact — a PRD you can ship, a sheet that adds up, a clickable prototype, a dashboard with the query behind it."}
           </p>
         </div>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6, flexShrink: 0 }}>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 6, height: 24, padding: "0 8px", borderRadius: 6, background: "var(--brand-tint-bg)", border: "1px solid var(--brand-tint-border)", color: "var(--brand-800)", fontSize: 12, fontWeight: 500 }}>3 of 3 credits left</span>
-          <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg2)" }}>1 credit per run · free on the waitlist</span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 6, height: 24, padding: "0 8px", borderRadius: 6, background: "var(--brand-tint-bg)", border: "1px solid var(--brand-tint-border)", color: "var(--brand-800)", fontSize: 12, fontWeight: 500 }}>
+            {user ? "5 of 5 credits left" : "3 of 3 credits left"}
+          </span>
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg2)" }}>
+            {user ? "1 credit per run · resets monthly" : "1 credit per run · free on the waitlist"}
+          </span>
         </div>
       </div>
 
-      {/* Input area */}
-      <div style={{ border: "1px solid var(--border)", borderRadius: 8, padding: 16, background: "var(--muted)", display: "flex", flexDirection: "column", gap: 12, marginBottom: 16 }}>
-        <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-          <div style={{ flex: 1, background: "var(--card)", border: "1px solid var(--input)", borderRadius: 6, padding: "12px 14px", minHeight: 76, display: "flex", flexDirection: "column", gap: 8 }}>
-            <span style={{ fontSize: 13, lineHeight: "20px", color: "var(--fg1)" }}>Onboarding drops off at step two on mobile — I think the value prop is buried. Work out what to change and show me.</span>
-            <span style={{ display: "flex", alignItems: "center", gap: 6, fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg2)" }}>
-              <span style={{ width: 2, height: 13, background: "var(--brand-800)", display: "block" }} />
-              brainstorm mode — half-formed is fine
-            </span>
+      {/* Signed-in layout: sidebar + main */}
+      <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
+        {user && <ProjectsSidebar activeProject="Mobile onboarding" />}
+
+        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 16 }}>
+          {/* Input area */}
+          <div style={{ border: "1px solid var(--border)", borderRadius: 8, padding: 16, background: "var(--muted)", display: "flex", flexDirection: "column", gap: 12 }}>
+            <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+              <div style={{ flex: 1, background: "var(--card)", border: "1px solid var(--input)", borderRadius: 6, padding: "12px 14px", minHeight: 76, display: "flex", flexDirection: "column", gap: 8 }}>
+                <span style={{ fontSize: 13, lineHeight: "20px", color: "var(--fg1)" }}>Onboarding drops off at step two on mobile — I think the value prop is buried. Work out what to change and show me.</span>
+                <span style={{ display: "flex", alignItems: "center", gap: 6, fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg2)" }}>
+                  <span style={{ width: 2, height: 13, background: "var(--brand-800)", display: "block" }} />
+                  brainstorm mode — half-formed is fine
+                </span>
+              </div>
+              <div style={{ width: 220, display: "flex", flexDirection: "column", gap: 8 }}>
+                <span style={{ display: "flex", alignItems: "center", gap: 8, height: 32, padding: "0 10px", border: "1px solid var(--border)", borderRadius: 6, background: "var(--card)", fontSize: 13, color: "var(--fg1)" }}>
+                  <span style={{ display: "inline-flex", alignItems: "center", height: 20, padding: "0 6px", borderRadius: 6, background: "rgba(2,132,199,.06)", border: "1px solid rgba(2,132,199,.12)", color: "var(--sky-800)", fontSize: 12, fontWeight: 500 }}>Notion</span>
+                  Onboarding research
+                </span>
+                <span style={{ display: "flex", alignItems: "center", gap: 8, height: 32, padding: "0 10px", border: "1px solid var(--border)", borderRadius: 6, background: "var(--card)", fontSize: 13, color: "var(--fg1)" }}>
+                  <span style={{ display: "inline-flex", alignItems: "center", height: 20, padding: "0 6px", borderRadius: 6, background: "rgba(220,38,38,.05)", border: "1px solid rgba(220,38,38,.1)", color: "var(--red-800)", fontSize: 12, fontWeight: 500 }}>PDF</span>
+                  funnel-q3.pdf
+                </span>
+                <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, height: 32, border: "1px dashed var(--stone-300)", borderRadius: 6, fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg2)" }}>+ drop a file or paste a link</span>
+              </div>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, paddingTop: 12, borderTop: "1px solid var(--border)" }}>
+              <span className="btn-primary" style={{ height: 32, padding: "0 14px", cursor: "default" }}>Run — 1 credit</span>
+              <span style={{ fontSize: 13, color: "var(--fg2)", marginRight: "auto" }}>
+                {user
+                  ? "Output lands on the canvas below and saves to this project."
+                  : "Output lands on the canvas below. Nothing is saved until you have a workspace."}
+              </span>
+              {!user && (
+                <span style={{ display: "inline-flex", alignItems: "center", height: 24, padding: "0 8px", borderRadius: 6, background: "rgba(180,83,9,.05)", border: "1px solid rgba(180,83,9,.1)", color: "var(--amber-700)", fontSize: 12, fontWeight: 500 }}>Sandbox</span>
+              )}
+              {user && (
+                <span style={{ display: "inline-flex", alignItems: "center", height: 24, padding: "0 8px", borderRadius: 6, background: "rgba(22,163,74,.05)", border: "1px solid rgba(22,163,74,.1)", color: "var(--green-800)", fontSize: 12, fontWeight: 500 }}>Saved</span>
+              )}
+            </div>
           </div>
-          <div style={{ width: 236, display: "flex", flexDirection: "column", gap: 8 }}>
-            <span style={{ display: "flex", alignItems: "center", gap: 8, height: 32, padding: "0 10px", border: "1px solid var(--border)", borderRadius: 6, background: "var(--card)", fontSize: 13, color: "var(--fg1)" }}>
-              <span style={{ display: "inline-flex", alignItems: "center", height: 20, padding: "0 6px", borderRadius: 6, background: "rgba(2,132,199,.06)", border: "1px solid rgba(2,132,199,.12)", color: "var(--sky-800)", fontSize: 12, fontWeight: 500 }}>Notion</span>
-              Onboarding research
-            </span>
-            <span style={{ display: "flex", alignItems: "center", gap: 8, height: 32, padding: "0 10px", border: "1px solid var(--border)", borderRadius: 6, background: "var(--card)", fontSize: 13, color: "var(--fg1)" }}>
-              <span style={{ display: "inline-flex", alignItems: "center", height: 20, padding: "0 6px", borderRadius: 6, background: "rgba(220,38,38,.05)", border: "1px solid rgba(220,38,38,.1)", color: "var(--red-800)", fontSize: 12, fontWeight: 500 }}>PDF</span>
-              funnel-q3.pdf
-            </span>
-            <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, height: 32, border: "1px dashed var(--stone-300)", borderRadius: 6, fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg2)" }}>+ drop a file or paste a link</span>
+
+          {/* Canvas tabs */}
+          <div style={{ display: "flex", gap: 4, padding: 3, borderRadius: 8, background: "var(--muted)", border: "1px solid var(--border)", maxWidth: 520 }}>
+            {(["doc","sheet","proto","dash"] as Tab[]).map(t => (
+              <button key={t} type="button" onClick={() => setTab(t)} style={{
+                flex: 1, height: 32, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13,
+                ...(tab === t
+                  ? { background: "var(--card)", fontWeight: 500, color: "var(--fg1)", boxShadow: "var(--shadow-sm)" }
+                  : { background: "transparent", color: "var(--fg2)" }),
+              }}>
+                {t === "doc" ? "Doc" : t === "sheet" ? "Sheet" : t === "proto" ? "Prototype" : "Dashboard"}
+              </button>
+            ))}
           </div>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, paddingTop: 12, borderTop: "1px solid var(--border)" }}>
-          <span className="btn-primary" style={{ height: 32, padding: "0 14px", cursor: "default" }}>Run — 1 credit</span>
-          <span style={{ fontSize: 13, color: "var(--fg2)", marginRight: "auto" }}>Output lands on the canvas below. Nothing is saved until you have a workspace.</span>
-          <span style={{ display: "inline-flex", alignItems: "center", height: 24, padding: "0 8px", borderRadius: 6, background: "rgba(180,83,9,.05)", border: "1px solid rgba(180,83,9,.1)", color: "var(--amber-700)", fontSize: 12, fontWeight: 500 }}>Sandbox</span>
-        </div>
-      </div>
 
-      {/* Canvas tabs */}
-      <div style={{ display: "flex", gap: 4, padding: 3, borderRadius: 8, background: "var(--muted)", border: "1px solid var(--border)", maxWidth: 520, marginBottom: 16 }}>
-        {(["doc","sheet","proto","dash"] as Tab[]).map(t => (
-          <button key={t} type="button" onClick={() => setTab(t)} style={{
-            flex: 1, height: 32, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13,
-            ...(tab === t
-              ? { background: "var(--card)", fontWeight: 500, color: "var(--fg1)", boxShadow: "var(--shadow-sm)" }
-              : { background: "transparent", color: "var(--fg2)" }),
-          }}>
-            {t === "doc" ? "Doc" : t === "sheet" ? "Sheet" : t === "proto" ? "Prototype" : "Dashboard"}
-          </button>
-        ))}
-      </div>
+          {/* Canvas panel */}
+          <div style={{ border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden", boxShadow: "var(--shadow-sm)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "12px 16px", borderBottom: "1px solid var(--border)", background: "var(--muted)" }}>
+              <span style={{ width: 6, height: 6, borderRadius: 9999, background: "var(--brand-600)", display: "block" }} />
+              <span style={{ fontSize: 13, fontWeight: 600 }}>{CANVAS_META[tab].title}</span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg2)", marginLeft: "auto" }}>{CANVAS_META[tab].meta}</span>
+              {user && (
+                <div style={{ display: "flex", gap: 6, marginLeft: 8 }}>
+                  <span style={{ display: "inline-flex", alignItems: "center", height: 24, padding: "0 8px", borderRadius: 6, border: "1px solid var(--border)", color: "var(--fg2)", fontSize: 12, cursor: "pointer" }}>Export</span>
+                  <span style={{ display: "inline-flex", alignItems: "center", height: 24, padding: "0 8px", borderRadius: 6, border: "1px solid var(--border)", color: "var(--fg2)", fontSize: 12 }}>Version 3</span>
+                </div>
+              )}
+            </div>
+            {tab === "proto" && <ProtoCanvas />}
+            {tab === "dash"  && <DashCanvas />}
+            {tab === "doc"   && <DocCanvas />}
+            {tab === "sheet" && <SheetCanvas />}
+          </div>
 
-      {/* Canvas panel */}
-      <div style={{ border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden", boxShadow: "var(--shadow-sm)" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "12px 16px", borderBottom: "1px solid var(--border)", background: "var(--muted)" }}>
-          <span style={{ width: 6, height: 6, borderRadius: 9999, background: "var(--brand-600)", display: "block" }} />
-          <span style={{ fontSize: 13, fontWeight: 600 }}>{CANVAS_META[tab].title}</span>
-          <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg2)", marginLeft: "auto" }}>{CANVAS_META[tab].meta}</span>
+          {!user && (
+            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+              <a href="#waitlist" className="btn-primary">Get early access</a>
+              <span style={{ fontSize: 13, color: "var(--fg2)" }}>Playground projects aren't saved — early access gives you a real workspace with folders, team and credits.</span>
+            </div>
+          )}
         </div>
-        {tab === "proto" && <ProtoCanvas />}
-        {tab === "dash"  && <DashCanvas />}
-        {tab === "doc"   && <DocCanvas />}
-        {tab === "sheet" && <SheetCanvas />}
-      </div>
-
-      <div style={{ display: "flex", alignItems: "center", gap: 16, marginTop: 16 }}>
-        <a href="#waitlist" className="btn-primary">Get early access</a>
-        <span style={{ fontSize: 13, color: "var(--fg2)" }}>Playground projects aren't saved — early access gives you a real workspace with folders, team and credits.</span>
       </div>
     </div>
   );

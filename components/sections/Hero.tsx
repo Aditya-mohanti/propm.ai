@@ -1,4 +1,7 @@
+"use client";
+
 import WaitlistForm from "@/components/ui/WaitlistForm";
+import { useAuth } from "@/lib/auth-context";
 
 const AGENTS = [
   { delay: 0,    color: "#0284c7", tagColor: "rgba(2,132,199,.06)", tagBorder: "rgba(2,132,199,.12)", tagText: "var(--sky-800)", tag: "Doc",       name: "PRD Writer",  id: "agent_01" },
@@ -9,6 +12,8 @@ const AGENTS = [
 ];
 
 export default function Hero() {
+  const { user, signOut } = useAuth();
+
   return (
     <div style={{ background: "var(--card)", borderRadius: 12, overflow: "hidden" }}>
       <header style={{
@@ -35,9 +40,40 @@ export default function Hero() {
             <a key={href} href={href} style={{ color: "var(--fg2)", textDecoration: "none" }}>{label}</a>
           ))}
         </nav>
-        <a href="#waitlist" className="btn-primary" style={{ height: 32, padding: "0 14px" }}>
-          Join the waitlist
-        </a>
+        {user ? (
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "0 10px", height: 32, borderRadius: 6, border: "1px solid var(--border)", background: "var(--muted)" }}>
+              <span style={{
+                width: 20, height: 20, borderRadius: "50%",
+                background: "var(--brand-100)", border: "1px solid var(--brand-200)",
+                color: "var(--brand-900)", fontSize: 11, fontWeight: 600,
+                display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+              }}>
+                {user.name.slice(0, 2).toUpperCase()}
+              </span>
+              <span style={{ fontSize: 13, color: "var(--fg1)", maxWidth: 140, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {user.name}
+              </span>
+            </div>
+            <a href="#playground" className="btn-primary" style={{ height: 32, padding: "0 14px" }}>
+              Open workspace →
+            </a>
+            <button
+              onClick={signOut}
+              style={{
+                height: 32, padding: "0 10px", border: "1px solid var(--border)",
+                borderRadius: 6, background: "transparent", fontSize: 13,
+                color: "var(--fg2)", cursor: "pointer",
+              }}
+            >
+              Sign out
+            </button>
+          </div>
+        ) : (
+          <a href="#waitlist" className="btn-primary" style={{ height: 32, padding: "0 14px" }}>
+            Join the waitlist
+          </a>
+        )}
       </header>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
@@ -52,7 +88,7 @@ export default function Hero() {
               width: 6, height: 6, borderRadius: 9999, background: "var(--brand-600)",
               display: "block", animation: "pulseDot 2.4s ease-in-out infinite",
             }} />
-            Early access · built by a PM, in the open
+            {user ? `Welcome back, ${user.name}` : "Early access · built by a PM, in the open"}
           </div>
 
           <h1 style={{
@@ -67,7 +103,35 @@ export default function Hero() {
             Customizable AI agents — PRD, GTM, market research, SQL, design — working on real docs, sheets, prototypes and dashboards. One workspace instead of six tabs.
           </p>
 
-          <WaitlistForm variant="hero" />
+          {user ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, maxWidth: 500, marginTop: 8 }}>
+              <div style={{
+                padding: "14px 16px", borderRadius: 8,
+                background: "var(--brand-50)", border: "1px solid var(--brand-tint-border)",
+                display: "flex", flexDirection: "column", gap: 2,
+              }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: "var(--brand-900)" }}>Your workspace is ready.</span>
+                <span style={{ fontSize: 12, color: "var(--fg2)" }}>Pick up where you left off — your agents and projects are waiting.</span>
+              </div>
+              <div style={{ display: "flex", gap: 8 }}>
+                <a href="#playground" className="btn-primary" style={{ height: 40, padding: "0 18px", display: "inline-flex", alignItems: "center" }}>
+                  Open workspace →
+                </a>
+                <button
+                  onClick={signOut}
+                  style={{
+                    height: 40, padding: "0 14px", border: "1px solid var(--border)",
+                    borderRadius: 6, background: "transparent", fontSize: 13,
+                    color: "var(--fg2)", cursor: "pointer",
+                  }}
+                >
+                  Sign out
+                </button>
+              </div>
+            </div>
+          ) : (
+            <WaitlistForm variant="hero" />
+          )}
 
           {/* Stats */}
           <div style={{ display: "flex", gap: 8, paddingTop: 24, marginTop: 8, borderTop: "1px solid var(--border)" }}>

@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useAuth } from "@/lib/auth-context";
 
 interface Props {
   variant?: "hero" | "cta";
 }
 
 export default function WaitlistForm({ variant = "hero" }: Props) {
+  const { signIn }              = useAuth();
   const [email, setEmail]       = useState("");
   const [role, setRole]         = useState("");
   const [status, setStatus]     = useState<"idle" | "ok" | "err">("idle");
@@ -19,6 +21,8 @@ export default function WaitlistForm({ variant = "hero" }: Props) {
     await new Promise(r => setTimeout(r, 600));
     setStatus("ok");
     setLabel("Get early access");
+    const name = email.split("@")[0].replace(/[._-]/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+    signIn({ name, email });
   }
 
   if (variant === "cta") {
