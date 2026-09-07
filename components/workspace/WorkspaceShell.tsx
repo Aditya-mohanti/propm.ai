@@ -15,6 +15,8 @@ import SkillsScreen from "./screens/SkillsScreen";
 import RunsScreen from "./screens/RunsScreen";
 import AccountScreen from "./screens/AccountScreen";
 import CanvasScreen from "./screens/CanvasScreen";
+import DevBar, { DEV_TOOLS_ENABLED } from "./DevBar";
+import { DEV_USER } from "@/lib/dev-seed";
 import {
   FolderIcon,
   ClockIcon,
@@ -77,7 +79,7 @@ const TITLES: Record<ScreenId, string> = {
 };
 
 export default function WorkspaceShell() {
-  const { user, ready: authReady } = useAuth();
+  const { user, ready: authReady, signIn } = useAuth();
   const {
     projects,
     agents,
@@ -132,10 +134,19 @@ export default function WorkspaceShell() {
             body="Projects, agents and run history are tied to your account, so there is nothing to show until we know who you are."
             actions={[
               { label: "Go to sign in", href: "/#waitlist" },
-              { label: "Back to the site", href: "/", variant: "ghost" },
+              ...(DEV_TOOLS_ENABLED
+                ? [
+                    {
+                      label: "Skip sign-in (dev)",
+                      onClick: () => signIn(DEV_USER),
+                      variant: "ghost" as const,
+                    },
+                  ]
+                : [{ label: "Back to the site", href: "/", variant: "ghost" as const }]),
             ]}
           />
         </div>
+        <DevBar />
       </div>
     );
   }
@@ -438,6 +449,8 @@ export default function WorkspaceShell() {
           }}
         />
       )}
+
+      <DevBar />
     </div>
   );
 }

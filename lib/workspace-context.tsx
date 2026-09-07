@@ -171,6 +171,11 @@ interface WorkspaceCtx extends WorkspaceState {
   disconnect: () => void;
 
   logRun: (input: Omit<Run, "id" | "at">) => void;
+
+  /** Empty this workspace back to its starting state. */
+  reset: () => void;
+  /** Swap the whole workspace in one go. Used by the dev tools to seed. */
+  replaceAll: (next: Omit<WorkspaceState, "ready">) => void;
 }
 
 const WorkspaceContext = createContext<WorkspaceCtx | null>(null);
@@ -263,6 +268,16 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     [store],
   );
 
+  const reset = useCallback(
+    () => store.set({ ...PENDING, ready: true }),
+    [store],
+  );
+
+  const replaceAll = useCallback<WorkspaceCtx["replaceAll"]>(
+    (next) => store.set({ ...next, ready: true }),
+    [store],
+  );
+
   const value = useMemo<WorkspaceCtx>(
     () => ({
       ...state,
@@ -274,6 +289,8 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       connect,
       disconnect,
       logRun,
+      reset,
+      replaceAll,
     }),
     [
       state,
@@ -284,6 +301,8 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       connect,
       disconnect,
       logRun,
+      reset,
+      replaceAll,
     ],
   );
 
