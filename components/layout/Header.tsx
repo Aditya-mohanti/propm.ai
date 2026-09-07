@@ -72,7 +72,7 @@ export default function Header() {
               {user.name}
             </span>
           </div>
-          <a href="#playground" className="btn-primary" style={{ height: 32, padding: "0 14px" }}>
+          <a href="/workspace" className="btn-primary" style={{ height: 32, padding: "0 14px" }}>
             Open workspace →
           </a>
           <button

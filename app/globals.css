@@ -237,3 +237,23 @@ a:hover { color: var(--primary-hover); }
 /* Hide scrollbar on horizontal scroll containers */
 [data-scroller]::-webkit-scrollbar { display: none; }
 [data-scroller] { scrollbar-width: none; -ms-overflow-style: none; }
+
+/* ── Workspace ── */
+@keyframes wsFadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes wsPulse {
+  0%, 100% { opacity: .45; }
+  50%      { opacity: 1;   }
+}
+
+/* The workspace is an app surface, not a marketing page: it sits on the light
+   ground rather than the dark canvas the landing sections are painted on. */
+body:has(> [data-workspace]) { background: var(--bg); }
+
+[data-workspace] :focus-visible {
+  outline: 2px solid var(--brand-500);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
