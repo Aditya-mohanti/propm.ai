@@ -33,12 +33,13 @@ export default function DevBar() {
     <div
       style={{
         position: "fixed",
-        left: 14,
+        // Bottom-right: bottom-left sits on top of the sidebar Account button.
+        right: 14,
         bottom: 14,
         zIndex: 70,
         display: "flex",
         flexDirection: "column",
-        alignItems: "flex-start",
+        alignItems: "flex-end",
         gap: 8,
         fontFamily: "var(--font-sans)",
       }}

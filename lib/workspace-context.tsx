@@ -29,7 +29,15 @@ export interface Connection {
   models: string[];
 }
 
-export type CanvasKind = "prd" | "prototype" | "decisions" | "model" | "sheet";
+export type CanvasKind =
+  | "prd"
+  | "prototype"
+  | "research"
+  | "data"
+  | "notes"
+  | "decisions"
+  | "model"
+  | "sheet";
 
 export interface Canvas {
   kind: CanvasKind;

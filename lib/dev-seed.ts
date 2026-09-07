@@ -32,9 +32,12 @@ const PROJECTS: Project[] = [
     updatedAt: hoursAgo(2),
     agentIds: ["agt_demo1", "agt_demo3"],
     canvases: [
+      { kind: "research", name: "Research", status: "2 writeups" },
       { kind: "prd", name: "PRD", status: "In review", detail: "draft 3" },
+      { kind: "prototype", name: "Design", status: "3 screens" },
+      { kind: "data", name: "Data", status: "1 chart" },
+      { kind: "notes", name: "Notes", status: "4 notes" },
       { kind: "decisions", name: "Decisions", status: "1 open" },
-      { kind: "prototype", name: "Prototype", status: "3 screens" },
     ],
   },
   {

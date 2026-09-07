@@ -117,3 +117,34 @@ export const ArrowIcon = (p: P) => (
     <path d="M5 12h13M13 7l5 5-5 5" />
   </S>
 );
+
+export const SearchIcon = (p: P) => (
+  <S {...p}>
+    <circle cx="11" cy="11" r="6.5" />
+    <path d="m16 16 4 4" />
+  </S>
+);
+
+export const ChartIcon = (p: P) => (
+  <S {...p}>
+    <path d="M4 20V4M4 20h16" />
+    <path d="M8 20v-6M12 20V8M16 20v-9M20 20v-4" />
+  </S>
+);
+
+export const NoteIcon = (p: P) => (
+  <S {...p}>
+    <path d="M5 4h14v11l-5 5H5z" />
+    <path d="M19 15h-5v5" />
+    <path d="M9 9h6M9 12h4" />
+  </S>
+);
+
+export const GridIcon = (p: P) => (
+  <S {...p}>
+    <rect x="4" y="4" width="7" height="7" rx="1.5" />
+    <rect x="13" y="4" width="7" height="7" rx="1.5" />
+    <rect x="4" y="13" width="7" height="7" rx="1.5" />
+    <rect x="13" y="13" width="7" height="7" rx="1.5" />
+  </S>
+);
