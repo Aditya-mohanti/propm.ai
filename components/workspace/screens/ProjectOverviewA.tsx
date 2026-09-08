@@ -222,7 +222,7 @@ export default function ProjectOverviewA({
                   borderRadius: 3,
                   background: s.started
                     ? "var(--brand-500)"
-                    : "var(--stone-200)",
+                    : "var(--track)",
                 }}
               />
               <span style={{ minWidth: 0, flex: 1 }}>
@@ -295,7 +295,7 @@ export default function ProjectOverviewA({
                     borderLeft: `2px solid ${
                       d.status === "open"
                         ? "var(--brand-400)"
-                        : "var(--stone-200)"
+                        : "var(--track)"
                     }`,
                   }}
                 >

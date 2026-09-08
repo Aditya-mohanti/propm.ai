@@ -238,7 +238,7 @@ export default function AccountScreen({
                       display: "block",
                       height: 4,
                       borderRadius: 2,
-                      background: "var(--stone-100)",
+                      background: "var(--track)",
                       overflow: "hidden",
                     }}
                   >

@@ -197,7 +197,7 @@ export default function ProjectOverviewB({
                         borderRadius: "50%",
                         background: s.started
                           ? "var(--brand-500)"
-                          : "var(--stone-300)",
+                          : "var(--dot-idle)",
                       }}
                     />
                     {i < data.surfaces.length - 1 && (
@@ -513,7 +513,7 @@ function Ring({
           cy="39"
           r={r}
           fill="none"
-          stroke="var(--stone-200)"
+          stroke="var(--track)"
           strokeWidth="6"
         />
         <circle
