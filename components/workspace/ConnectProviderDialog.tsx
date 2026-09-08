@@ -72,11 +72,10 @@ function ProviderMark({
   );
 }
 
-const OAUTH_STEPS = [
-  "Opening the authorisation window",
-  "Waiting for you to approve access",
-  "Exchanging the grant for a token",
-  "Checking which models your plan includes",
+const ACCOUNT_STEPS = [
+  "Looking for a signed-in account on this machine",
+  "Checking the credential with the provider",
+  "Reading which models your plan includes",
 ];
 
 const KEY_STEPS = [
@@ -129,7 +128,7 @@ export default function ConnectProviderDialog({
     return () => window.removeEventListener("keydown", onKey);
   }, [step, onClose]);
 
-  const steps = method === "oauth" ? OAUTH_STEPS : KEY_STEPS;
+  const steps = method === "oauth" ? ACCOUNT_STEPS : KEY_STEPS;
 
   function finish(m: ConnectMethod, hint?: string, models?: string[]) {
     connect({
@@ -143,6 +142,43 @@ export default function ConnectProviderDialog({
       models: models && models.length > 0 ? models : provider.models,
     });
     setStep("done");
+  }
+
+  /**
+   * Connects the user's own provider account. Nothing is sent: the server
+   * checks whether a signed-in profile resolves on this machine, and if so
+   * records that runs should use it.
+   */
+  async function connectAccount() {
+    clearTimers();
+    setMethod("oauth");
+    setProgress(0);
+    setStep("connecting");
+
+    ACCOUNT_STEPS.forEach((_, i) => {
+      timers.current.push(setTimeout(() => setProgress(i + 1), 380 * (i + 1)));
+    });
+
+    try {
+      const res = await fetch("/api/connect", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ provider: provider.id, mode: "account" }),
+      });
+      const data = (await res.json()) as { models?: string[]; error?: string };
+      clearTimers();
+
+      if (!res.ok || data.error) {
+        setFailure(data.error ?? `Could not use that account (${res.status}).`);
+        setStep("error");
+        return;
+      }
+      finish("oauth", undefined, data.models);
+    } catch {
+      clearTimers();
+      setFailure("Could not reach the server. Is the dev server running?");
+      setStep("error");
+    }
   }
 
   /**
@@ -381,9 +417,36 @@ export default function ConnectProviderDialog({
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {provider.supportsAccount && (
+                <>
+                  <button
+                    type="button"
+                    className="btn-primary"
+                    style={{ ...BTN, height: 40, justifyContent: "center" }}
+                    onClick={() => void connectAccount()}
+                  >
+                    Use my {provider.name} account
+                  </button>
+                  <span
+                    style={{
+                      fontSize: 11.5,
+                      lineHeight: 1.55,
+                      color: "var(--fg3)",
+                      textAlign: "center",
+                    }}
+                  >
+                    Runs bill to the {provider.name} subscription you already
+                    pay for. Requires being signed in on this machine with{" "}
+                    <code style={{ fontFamily: "var(--font-mono)" }}>
+                      ant auth login
+                    </code>
+                    .
+                  </span>
+                </>
+              )}
               <button
                 type="button"
-                className="btn-primary"
+                className={provider.supportsAccount ? "btn-ghost" : "btn-primary"}
                 style={{ ...BTN, height: 40, justifyContent: "center", gap: 7 }}
                 onClick={() => {
                   setMethod("api-key");
@@ -391,20 +454,22 @@ export default function ConnectProviderDialog({
                 }}
               >
                 <KeyIcon size={15} />
-                Connect with an API key
+                {provider.supportsAccount
+                  ? "Use an API key instead"
+                  : "Connect with an API key"}
               </button>
-              <span
-                style={{
-                  fontSize: 11.5,
-                  lineHeight: 1.55,
-                  color: "var(--fg3)",
-                  textAlign: "center",
-                }}
-              >
-                Signing in with a {provider.name} account needs a registered
-                OAuth app, which this workspace does not have yet. An API key
-                gives the same access today.
-              </span>
+              {provider.supportsAccount && (
+                <span
+                  style={{
+                    fontSize: 11.5,
+                    lineHeight: 1.55,
+                    color: "var(--fg3)",
+                    textAlign: "center",
+                  }}
+                >
+                  An API key bills pay-as-you-go against API credits instead.
+                </span>
+              )}
             </div>
 
             <button type="button" onClick={() => setStep("choose")} style={LINK}>
@@ -686,7 +751,7 @@ export default function ConnectProviderDialog({
                 k="Method"
                 v={
                   connection.method === "oauth"
-                    ? `${provider.name} authorisation`
+                    ? `Your ${provider.name} account`
                     : `API key ending ${connection.keyHint}`
                 }
               />

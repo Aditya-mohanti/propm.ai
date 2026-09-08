@@ -5,10 +5,11 @@ import { credentialFor } from "@/lib/server/credentials";
 /**
  * Project chat proxy.
  *
- * The browser never sees a provider key. The credential comes from the
- * httpOnly cookie set when the user connected the provider, or from an
- * environment variable when one is configured; either way the key is read and
- * used here, never shipped to the client.
+ * The browser never sees a credential. Depending on how the provider was
+ * connected this either runs on the user's own Claude account (the SDK
+ * resolves the `ant auth login` OAuth profile, so runs bill to their Pro/Max
+ * subscription) or on a pasted API key held in an httpOnly cookie. Both are
+ * read here, on the server, and never shipped to the client.
  *
  * Without a credential the route returns 503 and a message the UI shows
  * verbatim, rather than pretending to answer.
@@ -93,15 +94,18 @@ export async function POST(req: Request) {
 
   try {
     if (provider === "claude") {
-      const key = credentialFor(req, "claude");
-      if (!key) {
+      const cred = credentialFor(req, "claude");
+      if (!cred) {
         return bad(
           503,
-          "No Claude credential. Connect Claude from the workspace, or set ANTHROPIC_API_KEY.",
+          "No Claude credential. Connect Claude from the workspace — either with your Claude account or an API key.",
         );
       }
 
-      const client = new Anthropic({ apiKey: key });
+      // Account mode passes no key, so the SDK resolves the signed-in
+      // profile and the run bills to that subscription.
+      const client =
+        cred.kind === "account" ? new Anthropic() : new Anthropic({ apiKey: cred.key });
 
       const response = USE_REFUSAL_FALLBACKS
         ? await client.beta.messages.create({
@@ -140,15 +144,16 @@ export async function POST(req: Request) {
       });
     }
 
-    const key = credentialFor(req, "openai");
-    if (!key) {
+    const cred = credentialFor(req, "openai");
+    if (!cred) {
       return bad(
         503,
         "No ChatGPT credential. Connect ChatGPT from the workspace, or set OPENAI_API_KEY.",
       );
     }
 
-    const openai = new OpenAI({ apiKey: key });
+    const openai =
+      cred.kind === "account" ? new OpenAI() : new OpenAI({ apiKey: cred.key });
     const completion = await openai.chat.completions.create({
       model: OPENAI_MODEL,
       max_completion_tokens: MAX_TOKENS,

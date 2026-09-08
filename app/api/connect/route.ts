@@ -1,27 +1,34 @@
 import Anthropic from "@anthropic-ai/sdk";
 import OpenAI from "openai";
 import {
-  clearCredentialCookie,
+  clearCredentialCookies,
   credentialFor,
   hasEnvCredential,
-  setCredentialCookie,
+  setAccountCookie,
+  setKeyCookie,
+  SUPPORTS_ACCOUNT_MODE,
   type ProviderId,
 } from "@/lib/server/credentials";
 
 /**
  * Taking access for a provider.
  *
- * POST validates the pasted key by making a real, non-billable call to the
- * provider (listing models — authentication without spending tokens). Only a
- * key that actually works is accepted, so "connected" in the UI means the
- * credential has been exercised rather than merely typed.
+ * Both modes are verified against the provider before being accepted, by
+ * listing models — that authenticates without spending tokens. "Connected"
+ * therefore means the credential has been exercised, not merely supplied.
  *
- * The key is then stored in an httpOnly cookie. It never reaches client
- * JavaScript, and the response carries no echo of it beyond the last four
- * characters the UI shows.
+ *   mode "account" — uses your own Claude account via the OAuth profile that
+ *     `ant auth login` writes. Runs bill to your Pro/Max subscription. No
+ *     credential is stored by us at all; the SDK resolves it each time.
+ *
+ *   mode "key" — a pasted API key, billed pay-as-you-go, kept in an httpOnly
+ *     cookie the browser cannot read.
  */
 
 export const runtime = "nodejs";
+
+const ACCOUNT_HELP =
+  "No Claude account is signed in on this machine. Install the Anthropic CLI and run `ant auth login`, then try again. Alternatively connect with an API key.";
 
 function bad(status: number, error: string) {
   return Response.json({ error }, { status });
@@ -31,18 +38,29 @@ function isProvider(v: unknown): v is ProviderId {
   return v === "claude" || v === "openai";
 }
 
-/** GET — what is currently connected, for restoring UI state. */
+function withCookies(body: unknown, cookies: string[]) {
+  const headers = new Headers({ "Content-Type": "application/json" });
+  for (const c of cookies) headers.append("Set-Cookie", c);
+  return new Response(JSON.stringify(body), { status: 200, headers });
+}
+
+/** GET — what is currently connected, and which modes are available. */
 export async function GET(req: Request) {
-  const state = (["claude", "openai"] as ProviderId[]).map((provider) => ({
-    provider,
-    connected: Boolean(credentialFor(req, provider)),
-    fromEnvironment: hasEnvCredential(provider),
-  }));
-  return Response.json({ providers: state });
+  const providers = (["claude", "openai"] as ProviderId[]).map((provider) => {
+    const cred = credentialFor(req, provider);
+    return {
+      provider,
+      connected: cred !== null,
+      mode: cred?.kind ?? null,
+      fromEnvironment: hasEnvCredential(provider),
+      supportsAccount: SUPPORTS_ACCOUNT_MODE[provider],
+    };
+  });
+  return Response.json({ providers });
 }
 
 export async function POST(req: Request) {
-  let body: { provider?: unknown; apiKey?: unknown };
+  let body: { provider?: unknown; mode?: unknown; apiKey?: unknown };
   try {
     body = await req.json();
   } catch {
@@ -50,27 +68,47 @@ export async function POST(req: Request) {
   }
 
   const { provider, apiKey } = body;
+  const mode = body.mode === "account" ? "account" : "key";
   if (!isProvider(provider)) return bad(400, "Unknown provider.");
-  if (typeof apiKey !== "string" || !apiKey.trim()) {
-    return bad(400, "Paste a key to continue.");
-  }
 
-  const key = apiKey.trim();
+  if (mode === "account" && !SUPPORTS_ACCOUNT_MODE[provider]) {
+    return bad(
+      400,
+      "That provider has no account sign-in. Connect it with an API key.",
+    );
+  }
 
   try {
     if (provider === "claude") {
-      const client = new Anthropic({ apiKey: key });
-      // Listing models authenticates without generating any tokens.
+      // Account mode passes no key: the SDK resolves the `ant auth login`
+      // profile (or an environment variable) on its own.
+      const client =
+        mode === "account"
+          ? new Anthropic()
+          : new Anthropic({ apiKey: String(apiKey ?? "").trim() });
+
+      if (mode === "key" && !String(apiKey ?? "").trim()) {
+        return bad(400, "Paste a key to continue.");
+      }
+
       const models = await client.models.list({ limit: 20 });
-      return Response.json(
-        {
-          provider,
-          keyHint: key.slice(-4),
-          models: models.data.map((m) => m.display_name ?? m.id).slice(0, 6),
-        },
-        { headers: { "Set-Cookie": setCredentialCookie(req, provider, key) } },
+      const names = models.data.map((m) => m.display_name ?? m.id).slice(0, 6);
+
+      if (mode === "account") {
+        return withCookies(
+          { provider, mode, models: names },
+          setAccountCookie(req, provider),
+        );
+      }
+      const key = String(apiKey).trim();
+      return withCookies(
+        { provider, mode, keyHint: key.slice(-4), models: names },
+        setKeyCookie(req, provider, key),
       );
     }
+
+    const key = String(apiKey ?? "").trim();
+    if (!key) return bad(400, "Paste a key to continue.");
 
     const client = new OpenAI({ apiKey: key });
     const models = await client.models.list();
@@ -79,28 +117,31 @@ export async function POST(req: Request) {
       .filter((id) => id.startsWith("gpt") || id.startsWith("o"))
       .sort()
       .slice(0, 6);
-    return Response.json(
-      { provider, keyHint: key.slice(-4), models: ids },
-      { headers: { "Set-Cookie": setCredentialCookie(req, provider, key) } },
+    return withCookies(
+      { provider, mode: "key", keyHint: key.slice(-4), models: ids },
+      setKeyCookie(req, provider, key),
     );
   } catch (error) {
-    if (
+    const isAuth =
       error instanceof Anthropic.AuthenticationError ||
-      error instanceof OpenAI.AuthenticationError
-    ) {
-      return bad(401, "That key was rejected by the provider.");
+      error instanceof OpenAI.AuthenticationError;
+
+    if (isAuth) {
+      return bad(401, mode === "account" ? ACCOUNT_HELP : "That key was rejected by the provider.");
     }
     if (
       error instanceof Anthropic.PermissionDeniedError ||
       error instanceof OpenAI.PermissionDeniedError
     ) {
-      return bad(403, "That key is valid but lacks permission for this API.");
+      return bad(403, "That credential is valid but lacks permission for this API.");
     }
     if (error instanceof Anthropic.APIError || error instanceof OpenAI.APIError) {
       return bad(error.status ?? 502, error.message);
     }
-    // A network failure here is genuinely useful to surface: it usually means
-    // no outbound access rather than a bad key.
+    // With no credential at all the SDK throws before any request is made,
+    // which in account mode almost always means nobody has signed in.
+    if (mode === "account") return bad(401, ACCOUNT_HELP);
+
     const message =
       error instanceof Error ? error.message : "Could not reach the provider.";
     return bad(502, message);
@@ -109,11 +150,10 @@ export async function POST(req: Request) {
 
 /** DELETE — disconnect. */
 export async function DELETE(req: Request) {
-  const url = new URL(req.url);
-  const provider = url.searchParams.get("provider");
+  const provider = new URL(req.url).searchParams.get("provider");
   if (!isProvider(provider)) return bad(400, "Unknown provider.");
-  return Response.json(
+  return withCookies(
     { provider, connected: false },
-    { headers: { "Set-Cookie": clearCredentialCookie(req, provider) } },
+    clearCredentialCookies(req, provider),
   );
 }
