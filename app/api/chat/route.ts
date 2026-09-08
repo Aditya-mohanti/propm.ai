@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import OpenAI from "openai";
 import { credentialFor } from "@/lib/server/credentials";
+import { requireSession } from "@/lib/server/session";
 
 /**
  * Project chat proxy.
@@ -63,6 +64,9 @@ function bad(status: number, error: string) {
 }
 
 export async function POST(req: Request) {
+  const session = await requireSession();
+  if (session instanceof Response) return session;
+
   let body: Body;
   try {
     body = (await req.json()) as Body;

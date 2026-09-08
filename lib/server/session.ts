@@ -98,6 +98,26 @@ export async function getSession(): Promise<SessionUser | null> {
   return parseSession(store.get(COOKIE)?.value);
 }
 
+/**
+ * Session guard for API routes.
+ *
+ * `app/workspace/page.tsx` gates the workspace *page*, but a page gate does
+ * not protect the API routes underneath it — `/api/connect` and `/api/chat`
+ * are reachable directly regardless of what any page checked, and both set
+ * provider credentials or spend real API tokens. Every route that touches
+ * either must call this first.
+ *
+ * Returns the signed-in user, or a 401 Response to return immediately.
+ */
+export async function requireSession(): Promise<SessionUser | Response> {
+  const user = await getSession();
+  if (user) return user;
+  return Response.json(
+    { error: "Sign in to use this." },
+    { status: 401 },
+  );
+}
+
 function cookieHeader(req: Request, value: string, maxAge: number) {
   const parts = [
     `${COOKIE}=${value}`,

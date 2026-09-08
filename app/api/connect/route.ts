@@ -9,6 +9,7 @@ import {
   SUPPORTS_ACCOUNT_MODE,
   type ProviderId,
 } from "@/lib/server/credentials";
+import { requireSession } from "@/lib/server/session";
 
 /**
  * Taking access for a provider.
@@ -46,6 +47,9 @@ function withCookies(body: unknown, cookies: string[]) {
 
 /** GET — what is currently connected, and which modes are available. */
 export async function GET(req: Request) {
+  const session = await requireSession();
+  if (session instanceof Response) return session;
+
   const providers = (["claude", "openai"] as ProviderId[]).map((provider) => {
     const cred = credentialFor(req, provider);
     return {
@@ -60,6 +64,9 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  const session = await requireSession();
+  if (session instanceof Response) return session;
+
   let body: { provider?: unknown; mode?: unknown; apiKey?: unknown };
   try {
     body = await req.json();
@@ -150,6 +157,9 @@ export async function POST(req: Request) {
 
 /** DELETE — disconnect. */
 export async function DELETE(req: Request) {
+  const session = await requireSession();
+  if (session instanceof Response) return session;
+
   const provider = new URL(req.url).searchParams.get("provider");
   if (!isProvider(provider)) return bad(400, "Unknown provider.");
   return withCookies(
