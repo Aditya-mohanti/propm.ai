@@ -4,26 +4,13 @@ import { redirect } from "next/navigation";
 import { getSession, GOOGLE_CONFIGURED } from "@/lib/server/session";
 import { authMessage, isNeutral } from "@/lib/auth-messages";
 import GoogleMark from "@/components/ui/GoogleMark";
+import ToolOrbit from "@/components/ui/ToolOrbit";
+import Logo from "@/components/ui/Logo";
 
 export const metadata: Metadata = {
   title: "Sign in — ProPM",
   description: "Sign in to open your ProPM workspace.",
 };
-
-const INSIDE = [
-  {
-    title: "Projects with six surfaces",
-    body: "Research, PRD, design, data, notes and decisions — all reading the same context.",
-  },
-  {
-    title: "Agents you configure",
-    body: "A niche, a set of skills, and the canvases each one is allowed to write.",
-  },
-  {
-    title: "Chat on your own account",
-    body: "Runs bill to the Claude subscription you already pay for, not to us.",
-  },
-];
 
 export default async function SignInPage({
   searchParams,
@@ -54,6 +41,7 @@ export default async function SignInPage({
         {/* ── Sign-in ── */}
         <div
           style={{
+            position: "relative",
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
@@ -65,34 +53,21 @@ export default async function SignInPage({
             <Link
               href="/"
               style={{
+                position: "absolute",
+                top: 32,
+                left: 40,
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 8,
-                marginBottom: 40,
                 textDecoration: "none",
                 color: "inherit",
               }}
             >
-              <span
-                style={{
-                  width: 26,
-                  height: 26,
-                  borderRadius: 7,
-                  background: "var(--brand-800)",
-                  color: "var(--white)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontWeight: 600,
-                  fontSize: 14,
-                }}
-              >
-                P
-              </span>
+              <Logo size={24} />
               <span
                 style={{
                   fontFamily: "var(--font-serif)",
-                  fontSize: 19,
+                  fontSize: 17,
                   fontWeight: 600,
                   letterSpacing: "-0.01em",
                 }}
@@ -101,29 +76,88 @@ export default async function SignInPage({
               </span>
             </Link>
 
+            {/* Badge on a faint grid — the visual anchor above the form. */}
+            <div
+              style={{
+                position: "relative",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                height: 150,
+                marginBottom: 4,
+              }}
+            >
+              <span
+                aria-hidden="true"
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  backgroundImage:
+                    "linear-gradient(rgba(145,132,217,0.10) 1px, transparent 1px), linear-gradient(90deg, rgba(145,132,217,0.10) 1px, transparent 1px)",
+                  backgroundSize: "34px 34px",
+                  maskImage:
+                    "radial-gradient(circle at 50% 50%, #000 5%, transparent 68%)",
+                  WebkitMaskImage:
+                    "radial-gradient(circle at 50% 50%, #000 5%, transparent 68%)",
+                }}
+              />
+              <span
+                style={{
+                  position: "relative",
+                  width: 54,
+                  height: 54,
+                  borderRadius: 16,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: "linear-gradient(150deg, #8d80de 0%, #6f62b4 100%)",
+                  boxShadow:
+                    "0 0 0 8px rgba(145,132,217,0.10), 0 14px 30px rgba(0,0,0,0.45)",
+                  color: "#fff",
+                }}
+              >
+                <svg
+                  width="26"
+                  height="26"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.7"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                  <path d="M10 17l5-5-5-5M15 12H3" />
+                </svg>
+              </span>
+            </div>
+
             <h1
               style={{
                 margin: 0,
+                textAlign: "center",
                 fontFamily: "var(--font-serif)",
-                fontSize: 30,
+                fontSize: 27,
                 fontWeight: 600,
                 letterSpacing: "-0.02em",
-                lineHeight: 1.15,
+                lineHeight: 1.2,
               }}
             >
-              Sign in
+              Sign in to your workspace
             </h1>
             <p
               style={{
                 margin: "10px 0 0",
-                fontSize: 14,
+                textAlign: "center",
+                fontSize: 13.5,
                 lineHeight: 1.65,
                 color: "var(--fg2)",
                 textWrap: "pretty",
               }}
             >
               Your projects, agents and run history are tied to your account.
-              One click and the workspace opens.
+              One click and it opens.
             </p>
 
             {message && (
@@ -155,16 +189,16 @@ export default async function SignInPage({
                     alignItems: "center",
                     justifyContent: "center",
                     gap: 10,
-                    height: 46,
+                    height: 50,
                     width: "100%",
-                    borderRadius: "var(--radius-md)",
+                    borderRadius: 10,
                     border: "1px solid var(--input)",
                     background: "var(--white)",
                     color: "var(--stone-900)",
                     fontSize: 14.5,
                     fontWeight: 500,
                     textDecoration: "none",
-                    boxShadow: "var(--shadow-sm)",
+                    boxShadow: "0 10px 24px rgba(0,0,0,0.35)",
                   }}
                 >
                   <GoogleMark size={18} />
@@ -201,6 +235,7 @@ export default async function SignInPage({
             <p
               style={{
                 margin: "18px 0 0",
+                textAlign: "center",
                 fontSize: 12,
                 lineHeight: 1.6,
                 color: "var(--fg3)",
@@ -211,7 +246,7 @@ export default async function SignInPage({
               in beta.
             </p>
 
-            <p style={{ margin: "26px 0 0", fontSize: 13 }}>
+            <p style={{ margin: "26px 0 0", textAlign: "center", fontSize: 13 }}>
               <Link href="/" style={{ color: "var(--fg2)" }}>
                 ← Back to the site
               </Link>
@@ -223,70 +258,49 @@ export default async function SignInPage({
         <aside
           className="signin-aside"
           style={{
-            background: "#161826",
+            background:
+              "radial-gradient(120% 90% at 50% 0%, #221f3a 0%, #191b2b 45%, #141623 100%)",
             color: "#e9e9ed",
-            padding: "48px 44px",
+            padding: "56px 44px",
             display: "flex",
             flexDirection: "column",
+            alignItems: "center",
             justifyContent: "center",
+            gap: 8,
           }}
         >
-          <div style={{ maxWidth: 400 }}>
-            <span
-              style={{
-                fontFamily: "var(--font-mono)",
-                fontSize: 11.5,
-                letterSpacing: "0.1em",
-                color: "#9184d9",
-              }}
-            >
-              INSIDE THE WORKSPACE
-            </span>
-            <h2
-              style={{
-                margin: "14px 0 0",
-                fontFamily: "var(--font-serif)",
-                fontSize: 26,
-                fontWeight: 600,
-                letterSpacing: "-0.02em",
-                lineHeight: 1.2,
-              }}
-            >
-              The product team you wish you had.
-            </h2>
+          <h2
+            style={{
+              margin: 0,
+              textAlign: "center",
+              fontFamily: "var(--font-serif)",
+              fontSize: 30,
+              fontWeight: 600,
+              letterSpacing: "-0.02em",
+              lineHeight: 1.2,
+              textWrap: "balance",
+            }}
+          >
+            Six tools,{" "}
+            <span style={{ color: "#bdb3f4" }}>one workspace</span>
+          </h2>
+          <p
+            style={{
+              margin: "10px 0 0",
+              maxWidth: "42ch",
+              textAlign: "center",
+              fontSize: 13.5,
+              lineHeight: 1.65,
+              color: "#a3a6b8",
+              textWrap: "pretty",
+            }}
+          >
+            Docs, sheets, SQL, research, prototypes and chat — collapsed into
+            one surface your agents already share the context of.
+          </p>
 
-            <div
-              style={{
-                marginTop: 30,
-                display: "flex",
-                flexDirection: "column",
-                gap: 20,
-              }}
-            >
-              {INSIDE.map((item) => (
-                <div
-                  key={item.title}
-                  style={{
-                    paddingLeft: 14,
-                    borderLeft: "2px solid rgba(145, 132, 217, 0.5)",
-                  }}
-                >
-                  <div style={{ fontSize: 14.5, fontWeight: 600 }}>
-                    {item.title}
-                  </div>
-                  <div
-                    style={{
-                      marginTop: 4,
-                      fontSize: 13,
-                      lineHeight: 1.65,
-                      color: "#a3a6b8",
-                    }}
-                  >
-                    {item.body}
-                  </div>
-                </div>
-              ))}
-            </div>
+          <div style={{ width: "100%", marginTop: 18 }}>
+            <ToolOrbit />
           </div>
         </aside>
       </div>

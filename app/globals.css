@@ -1,25 +1,28 @@
 /* =========================================================
    PmPro.ai — Design tokens
-   Warm terracotta brand on dark canvas
+   Nocturne purple brand on dark canvas — the same palette
+   used across the workspace (see [data-workspace] below,
+   which now just restates these for the workspace-only
+   status-color and component overrides it still needs).
    ========================================================= */
 
 :root {
-  /* Brand (terracotta) */
-  --brand-50:  #fdf6f1;
-  --brand-100: #fbe9dd;
-  --brand-200: #f6d3bd;
-  --brand-300: #eeb391;
-  --brand-400: #e08a5f;
-  --brand-500: #cf6a3c;
-  --brand-600: #b8542c;
-  --brand-700: #9a4220;
-  --brand-800: #83371b;
-  --brand-900: #5f2712;
-  --brand-950: #3a170b;
+  /* Brand (purple), inverted ramp: 50 is the darkest fill, 900 the brightest ink. */
+  --brand-50:  #24203a;
+  --brand-100: #2b2741;
+  --brand-200: #3a3360;
+  --brand-300: #4f4682;
+  --brand-400: #6f62b4;
+  --brand-500: #9184d9;
+  --brand-600: #a99ee6;
+  --brand-700: #bdb3f4;
+  --brand-800: #d6d0fd;
+  --brand-900: #ece9ff;
+  --brand-950: #f5f4ff;
 
-  --brand-tint-bg:     color-mix(in srgb, var(--brand-600) 6%,  transparent);
-  --brand-tint-border: color-mix(in srgb, var(--brand-600) 14%, transparent);
-  --brand-tint-strong: color-mix(in srgb, var(--brand-600) 28%, transparent);
+  --brand-tint-bg:     color-mix(in srgb, var(--brand-500) 14%, transparent);
+  --brand-tint-border: color-mix(in srgb, var(--brand-500) 32%, transparent);
+  --brand-tint-strong: color-mix(in srgb, var(--brand-500) 46%, transparent);
 
   /* Stone neutrals */
   --stone-50:  #fafaf9;
@@ -37,55 +40,55 @@
   --black: #000000;
 
   /* Status */
-  --green-50:  #f0fdf4;
+  --green-50:  color-mix(in srgb, #34d399 14%, transparent);
   --green-100: #dcfce7;
-  --green-600: #16a34a;
-  --green-700: #15803d;
-  --green-800: #166534;
-  --red-50:    #fef2f2;
-  --red-800:   #991b1b;
+  --green-600: #6ee7b7;
+  --green-700: #86efac;
+  --green-800: #bbf7d0;
+  --red-50:    color-mix(in srgb, #ff6b6b 14%, transparent);
+  --red-800:   #ffa39c;
   --amber-50:  #fffbeb;
-  --amber-600: #d97706;
-  --amber-700: #b45309;
+  --amber-600: #fcd34d;
+  --amber-700: #fbbf24;
   --amber-800: #92400e;
-  --sky-800:   #075985;
+  --sky-800:   #7dd3fc;
   --teal-100:  #ccfbf1;
-  --teal-800:  #115e59;
+  --teal-800:  #5eead4;
   --purple-100:#f3e8ff;
   --purple-500:#a855f7;
-  --purple-800:#6b21a8;
+  --purple-800:#d8b4fe;
 
   /* Semantic tokens */
-  --bg:      var(--white);
-  --fg1:     var(--stone-900);
-  --fg2:     #6f665f;
-  --fg3:     var(--stone-400);
-  --canvas:  #2b1a12;
-  --card:    var(--white);
-  --muted:   #fbf7f3;
+  --bg:      #161826;
+  --fg1:     #e9e9ed;
+  --fg2:     #a3a6b8;
+  --fg3:     #7c7f92;
+  --canvas:  #101120;
+  --card:    #1e2133;
+  --muted:   #1b1d2c;
   --accent:  var(--brand-100);
-  --border:  #ece3da;
-  --input:   #e0d5c9;
+  --border:  rgba(233, 233, 237, 0.10);
+  --input:   rgba(233, 233, 237, 0.18);
 
-  --primary:              var(--brand-700);
-  --primary-fg:           var(--stone-50);
-  --primary-hover:        var(--brand-600);
-  --primary-active-shadow: 0 0 0 2px var(--white), 0 0 0 4px var(--brand-700);
+  --primary:              #7c6ed4;
+  --primary-fg:           #ffffff;
+  --primary-hover:        #8d80de;
+  --primary-active-shadow: 0 0 0 2px var(--card), 0 0 0 4px var(--primary);
 
   --secondary:       var(--brand-50);
   --secondary-hover: var(--brand-100);
-  --ring:            color-mix(in srgb, var(--brand-700) 15%, transparent);
+  --ring:            color-mix(in srgb, var(--brand-500) 40%, transparent);
 
   /* Surfaces that themes move independently of the neutral ramp:
      progress/rail tracks, idle indicator dots, and hover wash. */
-  --track:    var(--stone-100);
-  --dot-idle: var(--stone-300);
-  --hover:    var(--stone-100);
+  --track:    rgba(233, 233, 237, 0.12);
+  --dot-idle: rgba(233, 233, 237, 0.26);
+  --hover:    rgba(233, 233, 237, 0.06);
 
-  /* Shadows */
-  --shadow-sm:      0 1px 2px 0 rgba(0,0,0,.05);
-  --shadow-default: 0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -2px rgba(0,0,0,.1);
-  --shadow-lg:      0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -4px rgba(0,0,0,.1);
+  /* Shadows — a dark ground needs much heavier ambient shadow to read as depth. */
+  --shadow-sm:      0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-default: 0 4px 12px rgba(0, 0, 0, 0.45);
+  --shadow-lg:      0 18px 44px rgba(0, 0, 0, 0.6);
 
   /* Radius */
   --radius-sm:   2px;
@@ -254,82 +257,27 @@ a:hover { color: var(--primary-hover); }
   50%      { opacity: 1;   }
 }
 
+/* Sign-in orbit: rings turn, tool chips breathe. */
+@keyframes orbitSpin {
+  from { transform: rotate(0deg);   }
+  to   { transform: rotate(360deg); }
+}
+@keyframes orbitFloat {
+  0%, 100% { transform: translate(-50%, -50%);            }
+  50%      { transform: translate(-50%, calc(-50% - 6px)); }
+}
+
 
 /* =========================================================
    Nocturne — the workspace theme
 
    The workspace runs the purple design system the Project Overview
-   artboards were drawn in, while the marketing pages stay on the
-   terracotta brand. Every workspace component is built on the semantic
-   tokens below, so this block is the entire theme: no component knows
-   which palette it is rendering in.
-
-   The brand ramp is INVERTED relative to the light theme. In light mode
-   --brand-800 is a dark ink used for text on a pale tint; on a dark
-   ground that same role has to be pale. Roles, not values, are what
-   stay stable across the two themes.
+   artboards were drawn in. The marketing pages now run the same purple
+   palette (see :root above) — this block only carries the handful of
+   things that stay workspace-only: focus rings scoped to [data-workspace]
+   and the tag-brand-solid contrast fix, since status colors and the
+   brand ramp itself live in :root already.
    ========================================================= */
-
-body:has(> [data-workspace]) { background: #161826; }
-
-[data-workspace] {
-  /* Ground */
-  --bg:     #161826;
-  --card:   #1e2133;
-  --muted:  #1b1d2c;
-  --canvas: #101120;
-
-  /* Ink */
-  --fg1: #e9e9ed;
-  --fg2: #a3a6b8;
-  --fg3: #7c7f92;
-
-  --border: rgba(233, 233, 237, 0.10);
-  --input:  rgba(233, 233, 237, 0.18);
-
-  /* Brand ramp, inverted: 50 is the darkest fill, 900 the brightest ink. */
-  --brand-50:  #24203a;
-  --brand-100: #2b2741;
-  --brand-200: #3a3360;
-  --brand-300: #4f4682;
-  --brand-400: #6f62b4;
-  --brand-500: #9184d9;
-  --brand-600: #a99ee6;
-  --brand-700: #bdb3f4;
-  --brand-800: #d6d0fd;
-  --brand-900: #ece9ff;
-  --brand-950: #f5f4ff;
-
-  --brand-tint-bg:     color-mix(in srgb, #9184d9 14%, transparent);
-  --brand-tint-border: color-mix(in srgb, #9184d9 32%, transparent);
-  --brand-tint-strong: color-mix(in srgb, #9184d9 46%, transparent);
-
-  --primary:       #7c6ed4;
-  --primary-fg:    #ffffff;
-  --primary-hover: #8d80de;
-  --ring:          color-mix(in srgb, #9184d9 40%, transparent);
-
-  --track:    rgba(233, 233, 237, 0.12);
-  --dot-idle: rgba(233, 233, 237, 0.26);
-  --hover:    rgba(233, 233, 237, 0.06);
-
-  /* Status colours have to lighten too, or they vanish into the ground. */
-  --red-800:   #ffa39c;
-  --red-50:    color-mix(in srgb, #ff6b6b 14%, transparent);
-  --green-600: #6ee7b7;
-  --green-700: #86efac;
-  --green-800: #bbf7d0;
-  --green-50:  color-mix(in srgb, #34d399 14%, transparent);
-  --amber-600: #fcd34d;
-
-  /* Shadows read as depth against a dark ground only when the ambient
-     darkness is much heavier than the light theme needs. */
-  --shadow-sm:      0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-default: 0 4px 12px rgba(0, 0, 0, 0.45);
-  --shadow-lg:      0 18px 44px rgba(0, 0, 0, 0.6);
-
-  color: var(--fg1);
-}
 
 /* Solid brand chip: the inverted ramp would put pale ink on a pale fill,
    so this one pairs a mid fill with the bright ink explicitly. */

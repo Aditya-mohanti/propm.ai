@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@/lib/auth-context";
+import Logo from "@/components/ui/Logo";
 
 function initials(name: string) {
   return name
@@ -25,12 +26,7 @@ export default function Header() {
     }}>
       {/* Logo */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginRight: "auto" }}>
-        <span style={{
-          width: 24, height: 24, borderRadius: 6,
-          background: "var(--brand-800)", color: "var(--white)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          fontWeight: 600, fontSize: 13,
-        }}>P</span>
+        <Logo size={24} />
         <span style={{
           fontFamily: "var(--font-serif)", fontSize: 18, fontWeight: 600,
           letterSpacing: "-0.01em",

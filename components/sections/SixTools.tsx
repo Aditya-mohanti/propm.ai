@@ -22,7 +22,7 @@ export default function SixTools() {
             display: "flex", flexDirection: "column", gap: 12, background: "var(--muted)",
           }}>
             <span style={{
-              width: 28, height: 28, borderRadius: 6, background: "var(--white)",
+              width: 28, height: 28, borderRadius: 6, background: "var(--card)",
               border: "1px solid var(--brand-200)", color: "var(--brand-800)",
               display: "flex", alignItems: "center", justifyContent: "center",
               fontFamily: "var(--font-mono)", fontSize: 12,

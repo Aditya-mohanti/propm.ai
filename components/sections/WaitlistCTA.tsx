@@ -3,7 +3,7 @@ import WaitlistForm from "@/components/ui/WaitlistForm";
 export default function WaitlistCTA() {
   return (
     <div id="waitlist" style={{
-      background: "var(--brand-900)", borderRadius: 12,
+      background: "var(--brand-100)", borderRadius: 12,
       padding: "56px 40px",
       display: "grid", gridTemplateColumns: "1fr 460px", gap: 48, alignItems: "center",
     }}>

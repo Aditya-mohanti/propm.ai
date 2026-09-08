@@ -1,6 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import WaitlistForm from "@/components/ui/WaitlistForm";
+import QueriesDialog from "@/components/ui/QueriesDialog";
+import Logo from "@/components/ui/Logo";
 import DocCanvas from "./DocCanvas";
 import { useAuth } from "@/lib/auth-context";
 
@@ -14,19 +17,17 @@ const AGENTS = [
 
 export default function Hero() {
   const { user, signOut } = useAuth();
+  const [queriesOpen, setQueriesOpen] = useState(false);
 
   return (
     <div style={{ background: "var(--card)", borderRadius: 12, overflow: "hidden" }}>
+      {queriesOpen && <QueriesDialog onClose={() => setQueriesOpen(false)} />}
       <header style={{
         display: "flex", alignItems: "center", gap: 32,
         padding: "16px 40px", borderBottom: "1px solid var(--border)",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginRight: "auto" }}>
-          <span style={{
-            width: 24, height: 24, borderRadius: 6, background: "var(--brand-800)",
-            color: "var(--white)", display: "flex", alignItems: "center",
-            justifyContent: "center", fontWeight: 600, fontSize: 13,
-          }}>P</span>
+          <Logo size={24} />
           <span style={{ fontFamily: "var(--font-serif)", fontSize: 18, fontWeight: 600, letterSpacing: "-0.01em" }}>
             PmPro.ai
           </span>
@@ -40,6 +41,17 @@ export default function Hero() {
           ].map(([href, label]) => (
             <a key={href} href={href} style={{ color: "var(--fg2)", textDecoration: "none" }}>{label}</a>
           ))}
+          <button
+            type="button"
+            onClick={() => setQueriesOpen(true)}
+            style={{
+              border: 0, background: "transparent", padding: 0,
+              fontFamily: "inherit", fontSize: 13, color: "var(--brand-800)",
+              cursor: "pointer",
+            }}
+          >
+            Any queries?
+          </button>
         </nav>
         {user ? (
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>

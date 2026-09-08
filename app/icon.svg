@@ -1,0 +1,21 @@
+<svg width="600" height="600" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g2" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#059669"/>
+      <stop offset="100%" stop-color="#10B981"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="600" height="600" rx="88" fill="#0A0F0D"/>
+
+  <!-- ascending bars (a roadmap / metrics-up motif) capped by an arrowhead -->
+  <g transform="translate(130,188)">
+    <rect x="0"   y="180" width="44" height="70"  rx="10" fill="#2A3330"/>
+    <rect x="66"  y="130" width="44" height="120" rx="10" fill="#3E4C47"/>
+    <rect x="132" y="70"  width="44" height="180" rx="10" fill="#57685F"/>
+    <rect x="198" y="0"   width="44" height="250" rx="10" fill="url(#g2)"/>
+
+    <path d="M 242 0 L 300 -46 L 300 -18 L 340 -18 L 340 14 L 300 14 L 300 42 Z"
+          fill="url(#g2)" transform="translate(0,20)"/>
+  </g>
+</svg>

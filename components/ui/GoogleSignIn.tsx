@@ -12,7 +12,7 @@ import GoogleMark from "./GoogleMark";
  * something useful when Google is not configured or an attempt failed.
  */
 export default function GoogleSignIn({
-  label = "Join ProPM with Google",
+  label = "Join ProPM",
   full = false,
 }: {
   label?: string;

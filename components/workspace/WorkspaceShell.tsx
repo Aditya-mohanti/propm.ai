@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { useWorkspace } from "@/lib/workspace-context";
 import { PROVIDERS } from "@/lib/providers";
+import Logo from "@/components/ui/Logo";
 
 import ConnectProviderDialog from "./ConnectProviderDialog";
 import NewProjectDialog from "./NewProjectDialog";
@@ -222,22 +223,7 @@ export default function WorkspaceShell() {
             color: "inherit",
           }}
         >
-          <span
-            style={{
-              width: 24,
-              height: 24,
-              borderRadius: 6,
-              background: "var(--primary)",
-              color: "var(--primary-fg)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontWeight: 600,
-              fontSize: 13,
-            }}
-          >
-            P
-          </span>
+          <Logo size={24} />
           <span
             style={{
               fontFamily: "var(--font-serif)",
