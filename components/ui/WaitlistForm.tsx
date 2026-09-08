@@ -1,137 +1,131 @@
 "use client";
 
-import { useState } from "react";
-import { useAuth } from "@/lib/auth-context";
+import { useEffect, useSyncExternalStore } from "react";
+import GoogleSignIn from "./GoogleSignIn";
 
 interface Props {
   variant?: "hero" | "cta";
 }
 
-export default function WaitlistForm({ variant = "hero" }: Props) {
-  const { signIn }              = useAuth();
-  const [email, setEmail]       = useState("");
-  const [role, setRole]         = useState("");
-  const [status, setStatus]     = useState<"idle" | "ok" | "err">("idle");
-  const [label, setLabel]       = useState("Get early access");
+/**
+ * Joining ProPM.
+ *
+ * This used to be an email capture that signed you in locally with no
+ * verification of any kind. Signing in is now a real Google handshake, so
+ * this is the entry point to that rather than a form.
+ */
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!email) return;
-    setLabel("Joining…");
-    await new Promise(r => setTimeout(r, 600));
-    setStatus("ok");
-    setLabel("Get early access");
-    const name = email.split("@")[0].replace(/[._-]/g, " ").replace(/\b\w/g, c => c.toUpperCase());
-    signIn({ name, email });
+const AUTH_MESSAGES: Record<string, string> = {
+  required: "Sign in to open your workspace.",
+  unconfigured:
+    "Google sign-in is not configured on this server yet. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET.",
+  denied: "Sign-in was cancelled.",
+  state: "That sign-in link expired. Try again.",
+  token: "Google would not complete the sign-in. Try again.",
+  profile: "Could not read your Google profile.",
+  unverified: "That Google account has no verified email address.",
+  network: "Could not reach Google. Check your connection.",
+};
+
+/**
+ * The ?auth=… code the server redirected back with, captured once.
+ *
+ * Cached at module scope so it survives the URL being tidied below — and read
+ * through useSyncExternalStore rather than an effect, which keeps the value
+ * stable across renders without a cascading setState.
+ */
+let cachedAuthCode: string | null | undefined;
+
+function readAuthCode(): string | null {
+  if (cachedAuthCode === undefined) {
+    cachedAuthCode = new URLSearchParams(window.location.search).get("auth");
   }
+  return cachedAuthCode;
+}
+
+const noopSubscribe = () => () => {};
+
+/** Reads ?auth=… once so a failed or gated redirect explains itself. */
+function useAuthNotice() {
+  const code = useSyncExternalStore(noopSubscribe, readAuthCode, () => null);
+
+  // Tidy the URL so a refresh does not re-show the message. No setState here,
+  // so this stays a pure synchronisation with an external system.
+  useEffect(() => {
+    if (!code) return;
+    const url = new URL(window.location.href);
+    if (!url.searchParams.has("auth")) return;
+    url.searchParams.delete("auth");
+    window.history.replaceState({}, "", url.toString());
+  }, [code]);
+
+  if (!code) return null;
+  return AUTH_MESSAGES[code] ?? "Sign-in did not complete.";
+}
+
+function Notice({ text }: { text: string }) {
+  return (
+    <div
+      role="status"
+      style={{
+        padding: "9px 12px",
+        border: "1px solid var(--brand-tint-border)",
+        background: "var(--brand-tint-bg)",
+        borderRadius: 6,
+        fontSize: 12.5,
+        lineHeight: 1.55,
+        color: "var(--brand-900)",
+      }}
+    >
+      {text}
+    </div>
+  );
+}
+
+export default function WaitlistForm({ variant = "hero" }: Props) {
+  const notice = useAuthNotice();
 
   if (variant === "cta") {
     return (
-      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-          <label style={{ fontSize: 12, color: "var(--fg2)" }}>Work email</label>
-          <input
-            type="email" required value={email} onChange={e => setEmail(e.target.value)}
-            placeholder="you@company.com"
-            style={{
-              height: 40, padding: "0 12px", border: "1px solid var(--input)", borderRadius: 6,
-              fontFamily: "var(--font-sans)", fontSize: 13, color: "var(--fg1)", background: "var(--bg)",
-            }}
-          />
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-          <label style={{ fontSize: 12, color: "var(--fg2)" }}>Your role (optional)</label>
-          <select
-            value={role} onChange={e => setRole(e.target.value)}
-            style={{
-              height: 40, padding: "0 10px", border: "1px solid var(--input)", borderRadius: 6,
-              fontFamily: "var(--font-sans)", fontSize: 13, color: "var(--fg1)", background: "var(--bg)",
-            }}
-          >
-            <option>Select</option>
-            <option>PM / Product lead</option><option>Founder</option>
-            <option>Design</option><option>Engineering</option><option>Other</option>
-          </select>
-        </div>
-        {/* Honeypot */}
-        <input type="text" name="company_website" tabIndex={-1} aria-hidden="true"
-          style={{ position: "absolute", left: -9999, width: 1, height: 1, opacity: 0 }} />
-        <button type="submit" className="btn-primary" style={{ width: "100%", justifyContent: "center" }}>
-          {label}
-        </button>
-        {status === "ok" && (
-          <div style={{
-            display: "flex", flexDirection: "column", gap: 2,
-            padding: "10px 12px", border: "1px solid rgba(22,163,74,.15)",
-            background: "var(--green-50)", borderRadius: 6,
-          }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: "var(--green-800)" }}>You're on the list — position #1,284.</span>
-            <span style={{ fontSize: 12, color: "var(--fg2)" }}>Confirmation sent. Next: an invite when your workspace is provisioned.</span>
-          </div>
-        )}
-        {status === "err" && (
-          <div style={{ padding: "8px 12px", border: "1px solid rgba(153,27,27,.15)", background: "var(--red-50)", borderRadius: 6, fontSize: 12, color: "var(--red-800)" }}>
-            Couldn't save that. Check the address and try again.
-          </div>
-        )}
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {notice && <Notice text={notice} />}
+        <GoogleSignIn full />
         <div style={{ fontSize: 12, lineHeight: "16px", color: "var(--fg2)" }}>
-          By joining you agree to receive product emails. Unsubscribe any time.{" "}
-          <a href="#privacy" style={{ color: "var(--fg2)", textDecoration: "underline" }}>Privacy</a>
+          We use your Google account to sign you in and to name your workspace.
+          Nothing is posted anywhere on your behalf.{" "}
+          <a
+            href="#privacy"
+            style={{ color: "var(--fg2)", textDecoration: "underline" }}
+          >
+            Privacy
+          </a>
         </div>
-      </form>
+      </div>
     );
   }
 
-  // hero variant
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 10, maxWidth: 500, marginTop: 8 }}>
-      <form onSubmit={handleSubmit} style={{ display: "flex", gap: 8 }}>
-        <input
-          type="email" required value={email} onChange={e => setEmail(e.target.value)}
-          placeholder="you@company.com" aria-label="Work email"
-          style={{
-            flex: 1, minWidth: 0, height: 40, padding: "0 12px",
-            border: "1px solid var(--input)", borderRadius: 6,
-            fontFamily: "var(--font-sans)", fontSize: 13,
-            color: "var(--fg1)", background: "var(--bg)",
-          }}
-        />
-        <select
-          value={role} onChange={e => setRole(e.target.value)} aria-label="Your role"
-          style={{
-            height: 40, padding: "0 10px", border: "1px solid var(--input)", borderRadius: 6,
-            fontFamily: "var(--font-sans)", fontSize: 13,
-            color: "var(--fg2)", background: "var(--bg)",
-          }}
-        >
-          <option>Role (optional)</option>
-          <option>PM / Product lead</option><option>Founder</option>
-          <option>Design</option><option>Engineering</option><option>Other</option>
-        </select>
-        <button type="submit" className="btn-primary" style={{ height: 40, padding: "0 18px", whiteSpace: "nowrap" }}>
-          {label}
-        </button>
-      </form>
-
-      {status === "ok" && (
-        <div style={{
-          display: "flex", flexDirection: "column", gap: 2,
-          padding: "10px 12px", border: "1px solid rgba(22,163,74,.15)",
-          background: "var(--green-50)", borderRadius: 6,
-        }}>
-          <span style={{ fontSize: 13, fontWeight: 600, color: "var(--green-800)" }}>You're on the list.</span>
-          <span style={{ fontSize: 12, color: "var(--fg2)" }}>Confirmation sent. Next: an invite when your workspace is provisioned.</span>
-        </div>
-      )}
-      {status === "err" && (
-        <div style={{ padding: "8px 12px", border: "1px solid rgba(153,27,27,.15)", background: "var(--red-50)", borderRadius: 6, fontSize: 12, color: "var(--red-800)" }}>
-          That address didn't look right — try again.
-        </div>
-      )}
-
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 10,
+        maxWidth: 500,
+        marginTop: 8,
+      }}
+    >
+      {notice && <Notice text={notice} />}
+      <div>
+        <GoogleSignIn />
+      </div>
       <div style={{ fontSize: 12, lineHeight: "16px", color: "var(--fg2)" }}>
-        No spam. One email when your seat is ready.{" "}
-        <a href="#privacy" style={{ color: "var(--fg2)", textDecoration: "underline" }}>Privacy</a>
+        Free while in beta. Your workspace opens straight after sign-in.{" "}
+        <a
+          href="#privacy"
+          style={{ color: "var(--fg2)", textDecoration: "underline" }}
+        >
+          Privacy
+        </a>
       </div>
     </div>
   );

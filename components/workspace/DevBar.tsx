@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useWorkspace } from "@/lib/workspace-context";
-import { demoWorkspace, DEV_USER } from "@/lib/dev-seed";
+import { demoWorkspace } from "@/lib/dev-seed";
 
 /**
  * Local design harness.
@@ -19,8 +19,16 @@ import { demoWorkspace, DEV_USER } from "@/lib/dev-seed";
  */
 export const DEV_TOOLS_ENABLED = process.env.NODE_ENV === "development";
 
+/** Opens a session through the development-only route, then reloads so the
+ *  server-rendered layout picks it up. */
+function devSignIn() {
+  void fetch("/api/auth/dev", { method: "POST" })
+    .catch(() => {})
+    .finally(() => window.location.reload());
+}
+
 export default function DevBar() {
-  const { user, signIn, signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const { projects, isConnected, replaceAll, reset, disconnect } =
     useWorkspace();
   const [open, setOpen] = useState(false);
@@ -78,17 +86,12 @@ export default function DevBar() {
           {user ? (
             <DevButton onClick={signOut}>Sign out</DevButton>
           ) : (
-            <DevButton primary onClick={() => signIn(DEV_USER)}>
+            <DevButton primary onClick={devSignIn}>
               Sign in as test user
             </DevButton>
           )}
 
-          <DevButton
-            onClick={() => {
-              if (!user) signIn(DEV_USER);
-              replaceAll(demoWorkspace());
-            }}
-          >
+          <DevButton onClick={() => replaceAll(demoWorkspace())}>
             {populated ? "Re-seed demo data" : "Seed demo data"}
           </DevButton>
 

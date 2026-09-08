@@ -1,88 +1,55 @@
 "use client";
 
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  useSyncExternalStore,
-} from "react";
-import { createLocalStore } from "@/lib/local-store";
+import { createContext, useCallback, useContext, useMemo } from "react";
+import { useRouter } from "next/navigation";
 
 export interface User {
   name: string;
   email: string;
+  picture?: string;
 }
 
-interface Session {
+interface AuthCtx {
   user: User | null;
   /**
-   * False during SSR and the hydration pass, true once storage has been read.
-   * Without it every consumer sees `user === null` on the first paint and a
-   * signed-in visitor flashes the signed-out UI.
+   * Always true. The session is resolved on the server and handed in as a
+   * prop, so there is no loading pass and no signed-out flash. Kept so
+   * consumers written against the old client-side session still compile.
    */
   ready: boolean;
-}
-
-const SIGNED_OUT: Session = { user: null, ready: false };
-
-/**
- * A hand-edited or half-written entry signs you out rather than crashing the
- * header on `user.name.split`.
- */
-function parseSession(raw: string | null): Session {
-  if (!raw) return { user: null, ready: true };
-  try {
-    const parsed = JSON.parse(raw) as Partial<User> | null;
-    if (!parsed || typeof parsed.email !== "string") {
-      return { user: null, ready: true };
-    }
-    return {
-      user: { name: parsed.name ?? parsed.email, email: parsed.email },
-      ready: true,
-    };
-  } catch {
-    return { user: null, ready: true };
-  }
-}
-
-const store = createLocalStore<Session>({
-  key: "pmpro_user",
-  parse: parseSession,
-  serverValue: SIGNED_OUT,
-  // Only the user is persisted; `ready` describes this runtime, not the session.
-  serialize: (s) => (s.user ? JSON.stringify(s.user) : null),
-});
-
-interface AuthCtx extends Session {
-  signIn: (u: User) => void;
   signOut: () => void;
 }
 
 const AuthContext = createContext<AuthCtx>({
-  ...SIGNED_OUT,
-  signIn: () => {},
+  user: null,
+  ready: true,
   signOut: () => {},
 });
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const session = useSyncExternalStore(
-    store.subscribe,
-    store.getSnapshot,
-    store.getServerSnapshot,
-  );
-
-  const signIn = useCallback((u: User) => {
-    store.set({ user: u, ready: true });
-  }, []);
+export function AuthProvider({
+  user,
+  children,
+}: {
+  user: User | null;
+  children: React.ReactNode;
+}) {
+  const router = useRouter();
 
   const signOut = useCallback(() => {
-    store.set({ user: null, ready: true });
-  }, []);
+    // The session lives in an httpOnly cookie, so only the server can clear
+    // it. refresh() then re-runs the server layout, which re-renders with no
+    // user rather than trusting anything held on the client.
+    void fetch("/api/auth/signout", { method: "POST" })
+      .catch(() => {})
+      .finally(() => {
+        router.replace("/");
+        router.refresh();
+      });
+  }, [router]);
 
   const value = useMemo<AuthCtx>(
-    () => ({ ...session, signIn, signOut }),
-    [session, signIn, signOut],
+    () => ({ user, ready: true, signOut }),
+    [user, signOut],
   );
 
   return (

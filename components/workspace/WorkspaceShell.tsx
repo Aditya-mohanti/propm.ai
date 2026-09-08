@@ -16,8 +16,7 @@ import RunsScreen from "./screens/RunsScreen";
 import AccountScreen from "./screens/AccountScreen";
 import CanvasScreen from "./screens/CanvasScreen";
 import ProjectHubScreen from "./screens/ProjectHubScreen";
-import DevBar, { DEV_TOOLS_ENABLED } from "./DevBar";
-import { DEV_USER } from "@/lib/dev-seed";
+import DevBar from "./DevBar";
 import {
   FolderIcon,
   ClockIcon,
@@ -112,7 +111,7 @@ const TITLES: Record<ScreenId, string> = {
 };
 
 export default function WorkspaceShell() {
-  const { user, ready: authReady, signIn } = useAuth();
+  const { user, ready: authReady } = useAuth();
   const {
     projects,
     agents,
@@ -148,6 +147,8 @@ export default function WorkspaceShell() {
     );
   }
 
+  // The /workspace route redirects when there is no session, so reaching here
+  // without a user means the session expired mid-visit.
   if (!user) {
     return (
       <div
@@ -163,20 +164,9 @@ export default function WorkspaceShell() {
         <div style={{ width: "100%", maxWidth: 520 }}>
           <EmptyState
             icon={<FolderIcon size={22} />}
-            title="Sign in to open your workspace"
-            body="Projects, agents and run history are tied to your account, so there is nothing to show until we know who you are."
-            actions={[
-              { label: "Go to sign in", href: "/#waitlist" },
-              ...(DEV_TOOLS_ENABLED
-                ? [
-                    {
-                      label: "Skip sign-in (dev)",
-                      onClick: () => signIn(DEV_USER),
-                      variant: "ghost" as const,
-                    },
-                  ]
-                : [{ label: "Back to the site", href: "/", variant: "ghost" as const }]),
-            ]}
+            title="Your session ended"
+            body="Sign in again with Google to get back to your projects, agents and run history."
+            actions={[{ label: "Sign in with Google", href: "/api/auth/google" }]}
           />
         </div>
         <DevBar />
