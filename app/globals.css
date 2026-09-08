@@ -76,6 +76,12 @@
   --secondary-hover: var(--brand-100);
   --ring:            color-mix(in srgb, var(--brand-700) 15%, transparent);
 
+  /* Surfaces that themes move independently of the neutral ramp:
+     progress/rail tracks, idle indicator dots, and hover wash. */
+  --track:    var(--stone-100);
+  --dot-idle: var(--stone-300);
+  --hover:    var(--stone-100);
+
   /* Shadows */
   --shadow-sm:      0 1px 2px 0 rgba(0,0,0,.05);
   --shadow-default: 0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -2px rgba(0,0,0,.1);
@@ -220,7 +226,7 @@ a:hover { color: var(--primary-hover); }
   text-decoration: none;
   transition: background var(--duration-fast);
 }
-.btn-ghost:hover { background: var(--stone-100); color: var(--fg1); }
+.btn-ghost:hover { background: var(--hover); color: var(--fg1); }
 
 /* ── Mono label ── */
 .mono-label {
@@ -248,12 +254,117 @@ a:hover { color: var(--primary-hover); }
   50%      { opacity: 1;   }
 }
 
-/* The workspace is an app surface, not a marketing page: it sits on the light
-   ground rather than the dark canvas the landing sections are painted on. */
-body:has(> [data-workspace]) { background: var(--bg); }
+
+/* =========================================================
+   Nocturne — the workspace theme
+
+   The workspace runs the purple design system the Project Overview
+   artboards were drawn in, while the marketing pages stay on the
+   terracotta brand. Every workspace component is built on the semantic
+   tokens below, so this block is the entire theme: no component knows
+   which palette it is rendering in.
+
+   The brand ramp is INVERTED relative to the light theme. In light mode
+   --brand-800 is a dark ink used for text on a pale tint; on a dark
+   ground that same role has to be pale. Roles, not values, are what
+   stay stable across the two themes.
+   ========================================================= */
+
+body:has(> [data-workspace]) { background: #161826; }
+
+[data-workspace] {
+  /* Ground */
+  --bg:     #161826;
+  --card:   #1e2133;
+  --muted:  #1b1d2c;
+  --canvas: #101120;
+
+  /* Ink */
+  --fg1: #e9e9ed;
+  --fg2: #a3a6b8;
+  --fg3: #7c7f92;
+
+  --border: rgba(233, 233, 237, 0.10);
+  --input:  rgba(233, 233, 237, 0.18);
+
+  /* Brand ramp, inverted: 50 is the darkest fill, 900 the brightest ink. */
+  --brand-50:  #24203a;
+  --brand-100: #2b2741;
+  --brand-200: #3a3360;
+  --brand-300: #4f4682;
+  --brand-400: #6f62b4;
+  --brand-500: #9184d9;
+  --brand-600: #a99ee6;
+  --brand-700: #bdb3f4;
+  --brand-800: #d6d0fd;
+  --brand-900: #ece9ff;
+  --brand-950: #f5f4ff;
+
+  --brand-tint-bg:     color-mix(in srgb, #9184d9 14%, transparent);
+  --brand-tint-border: color-mix(in srgb, #9184d9 32%, transparent);
+  --brand-tint-strong: color-mix(in srgb, #9184d9 46%, transparent);
+
+  --primary:       #7c6ed4;
+  --primary-fg:    #ffffff;
+  --primary-hover: #8d80de;
+  --ring:          color-mix(in srgb, #9184d9 40%, transparent);
+
+  --track:    rgba(233, 233, 237, 0.12);
+  --dot-idle: rgba(233, 233, 237, 0.26);
+  --hover:    rgba(233, 233, 237, 0.06);
+
+  /* Status colours have to lighten too, or they vanish into the ground. */
+  --red-800:   #ffa39c;
+  --red-50:    color-mix(in srgb, #ff6b6b 14%, transparent);
+  --green-600: #6ee7b7;
+  --green-700: #86efac;
+  --green-800: #bbf7d0;
+  --green-50:  color-mix(in srgb, #34d399 14%, transparent);
+  --amber-600: #fcd34d;
+
+  /* Shadows read as depth against a dark ground only when the ambient
+     darkness is much heavier than the light theme needs. */
+  --shadow-sm:      0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-default: 0 4px 12px rgba(0, 0, 0, 0.45);
+  --shadow-lg:      0 18px 44px rgba(0, 0, 0, 0.6);
+
+  color: var(--fg1);
+}
+
+/* Solid brand chip: the inverted ramp would put pale ink on a pale fill,
+   so this one pairs a mid fill with the bright ink explicitly. */
+[data-workspace] .tag-brand-solid {
+  background: var(--brand-200);
+  color: var(--brand-900);
+}
+
+[data-workspace] .btn-ghost { border-color: var(--border); }
 
 [data-workspace] :focus-visible {
   outline: 2px solid var(--brand-500);
   outline-offset: 2px;
   border-radius: 4px;
+}
+
+/* Project overview beside its chat. */
+.ws-project-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 372px;
+  gap: 14px;
+  align-items: start;
+}
+@media (max-width: 1100px) {
+  .ws-project-grid { grid-template-columns: minmax(0, 1fr); }
+  .ws-project-grid > section { position: static; max-height: 560px; }
+}
+
+/* Sign-in screen: form beside a preview of what is behind it. */
+.signin-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  min-height: 100vh;
+}
+@media (max-width: 900px) {
+  .signin-grid { grid-template-columns: minmax(0, 1fr); }
+  .signin-aside { display: none; }
 }

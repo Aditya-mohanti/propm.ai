@@ -15,7 +15,7 @@ export default function WaitlistCTA() {
           Get a product team on your side.
         </h2>
         <p style={{ fontSize: 16, lineHeight: "26px", color: "rgba(250,250,249,.7)", marginTop: 12, maxWidth: "44ch", textWrap: "pretty" as const }}>
-          Join the waitlist for early access. Weekly invite batches, founder pricing at launch, and a direct line to the person building it.
+          Sign in with Google and your workspace opens straight away. Free while in beta, founder pricing at launch, and a direct line to the person building it.
         </p>
       </div>
 

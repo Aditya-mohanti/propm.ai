@@ -72,11 +72,10 @@ function ProviderMark({
   );
 }
 
-const OAUTH_STEPS = [
-  "Opening the authorisation window",
-  "Waiting for you to approve access",
-  "Exchanging the grant for a token",
-  "Checking which models your plan includes",
+const ACCOUNT_STEPS = [
+  "Looking for a signed-in account on this machine",
+  "Checking the credential with the provider",
+  "Reading which models your plan includes",
 ];
 
 const KEY_STEPS = [
@@ -129,9 +128,9 @@ export default function ConnectProviderDialog({
     return () => window.removeEventListener("keydown", onKey);
   }, [step, onClose]);
 
-  const steps = method === "oauth" ? OAUTH_STEPS : KEY_STEPS;
+  const steps = method === "oauth" ? ACCOUNT_STEPS : KEY_STEPS;
 
-  function finish(m: ConnectMethod, hint?: string) {
+  function finish(m: ConnectMethod, hint?: string, models?: string[]) {
     connect({
       provider: provider.id,
       accountEmail: user?.email ?? "you@yourcompany.com",
@@ -139,34 +138,100 @@ export default function ConnectProviderDialog({
       method: m,
       keyHint: hint,
       connectedAt: new Date().toISOString(),
-      models: provider.models,
+      // Models the key can actually see, as reported by the provider.
+      models: models && models.length > 0 ? models : provider.models,
     });
     setStep("done");
   }
 
-  function run(m: ConnectMethod, hint?: string) {
+  /**
+   * Connects the user's own provider account. Nothing is sent: the server
+   * checks whether a signed-in profile resolves on this machine, and if so
+   * records that runs should use it.
+   */
+  async function connectAccount() {
     clearTimers();
-    setMethod(m);
+    setMethod("oauth");
     setProgress(0);
     setStep("connecting");
 
-    const list = m === "oauth" ? OAUTH_STEPS : KEY_STEPS;
-    list.forEach((_, i) => {
-      timers.current.push(setTimeout(() => setProgress(i + 1), 520 * (i + 1)));
+    ACCOUNT_STEPS.forEach((_, i) => {
+      timers.current.push(setTimeout(() => setProgress(i + 1), 380 * (i + 1)));
     });
-    timers.current.push(
-      setTimeout(() => finish(m, hint), 520 * (list.length + 1)),
-    );
+
+    try {
+      const res = await fetch("/api/connect", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ provider: provider.id, mode: "account" }),
+      });
+      const data = (await res.json()) as { models?: string[]; error?: string };
+      clearTimers();
+
+      if (!res.ok || data.error) {
+        setFailure(data.error ?? `Could not use that account (${res.status}).`);
+        setStep("error");
+        return;
+      }
+      finish("oauth", undefined, data.models);
+    } catch {
+      clearTimers();
+      setFailure("Could not reach the server. Is the dev server running?");
+      setStep("error");
+    }
   }
 
-  function submitKey() {
-    const result = checkKey(provider, key);
-    if (!result.ok) {
-      setKeyError(result.message ?? "That key does not look right.");
+  /**
+   * Hands the key to our own server, which verifies it against the provider
+   * and stores it in an httpOnly cookie. Nothing here keeps the key: it lives
+   * in this component only for as long as the request takes.
+   */
+  async function submitKey() {
+    const shape = checkKey(provider, key);
+    if (!shape.ok) {
+      setKeyError(shape.message ?? "That key does not look right.");
       return;
     }
+
+    clearTimers();
     setKeyError(null);
-    run("api-key", keyHint(key));
+    setMethod("api-key");
+    setProgress(0);
+    setStep("connecting");
+
+    // The steps advance on a timer purely as progress feedback; the request
+    // below is what actually decides the outcome.
+    KEY_STEPS.forEach((_, i) => {
+      timers.current.push(setTimeout(() => setProgress(i + 1), 380 * (i + 1)));
+    });
+
+    try {
+      const res = await fetch("/api/connect", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ provider: provider.id, apiKey: key }),
+      });
+      const data = (await res.json()) as {
+        keyHint?: string;
+        models?: string[];
+        error?: string;
+      };
+
+      clearTimers();
+
+      if (!res.ok || data.error) {
+        setFailure(data.error ?? `The provider rejected that (${res.status}).`);
+        setStep("error");
+        return;
+      }
+
+      setKey("");
+      finish("api-key", data.keyHint ?? keyHint(key), data.models);
+    } catch {
+      clearTimers();
+      setFailure("Could not reach the server. Is the dev server running?");
+      setStep("error");
+    }
   }
 
   return (
@@ -352,17 +417,36 @@ export default function ConnectProviderDialog({
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {provider.supportsAccount && (
+                <>
+                  <button
+                    type="button"
+                    className="btn-primary"
+                    style={{ ...BTN, height: 40, justifyContent: "center" }}
+                    onClick={() => void connectAccount()}
+                  >
+                    Use my {provider.name} account
+                  </button>
+                  <span
+                    style={{
+                      fontSize: 11.5,
+                      lineHeight: 1.55,
+                      color: "var(--fg3)",
+                      textAlign: "center",
+                    }}
+                  >
+                    Runs bill to the {provider.name} subscription you already
+                    pay for. Requires being signed in on this machine with{" "}
+                    <code style={{ fontFamily: "var(--font-mono)" }}>
+                      ant auth login
+                    </code>
+                    .
+                  </span>
+                </>
+              )}
               <button
                 type="button"
-                className="btn-primary"
-                style={{ ...BTN, height: 40, justifyContent: "center" }}
-                onClick={() => run("oauth")}
-              >
-                Continue with {provider.name}
-              </button>
-              <button
-                type="button"
-                className="btn-ghost"
+                className={provider.supportsAccount ? "btn-ghost" : "btn-primary"}
                 style={{ ...BTN, height: 40, justifyContent: "center", gap: 7 }}
                 onClick={() => {
                   setMethod("api-key");
@@ -370,8 +454,22 @@ export default function ConnectProviderDialog({
                 }}
               >
                 <KeyIcon size={15} />
-                Use an API key instead
+                {provider.supportsAccount
+                  ? "Use an API key instead"
+                  : "Connect with an API key"}
               </button>
+              {provider.supportsAccount && (
+                <span
+                  style={{
+                    fontSize: 11.5,
+                    lineHeight: 1.55,
+                    color: "var(--fg3)",
+                    textAlign: "center",
+                  }}
+                >
+                  An API key bills pay-as-you-go against API credits instead.
+                </span>
+              )}
             </div>
 
             <button type="button" onClick={() => setStep("choose")} style={LINK}>
@@ -408,7 +506,7 @@ export default function ConnectProviderDialog({
                     if (keyError) setKeyError(null);
                   }}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter") submitKey();
+                    if (e.key === "Enter") void submitKey();
                   }}
                   aria-invalid={keyError ? true : undefined}
                   style={{
@@ -480,7 +578,7 @@ export default function ConnectProviderDialog({
                 type="button"
                 className="btn-primary"
                 style={BTN}
-                onClick={submitKey}
+                onClick={() => void submitKey()}
               >
                 Connect
               </button>
@@ -653,7 +751,7 @@ export default function ConnectProviderDialog({
                 k="Method"
                 v={
                   connection.method === "oauth"
-                    ? `${provider.name} authorisation`
+                    ? `Your ${provider.name} account`
                     : `API key ending ${connection.keyHint}`
                 }
               />

@@ -12,7 +12,9 @@ export interface ProviderMeta {
   keyPrefix: string;
   keyPlaceholder: string;
   docsUrl: string;
-  /** Plan shown after an authorisation handshake. */
+  /** Whether this provider can run on the user's own signed-in account. */
+  supportsAccount: boolean;
+  /** Plan shown when running on the user's own account. */
   oauthPlan: string;
   /** Plan shown when connected with a raw key — usage-billed, not a subscription. */
   apiKeyPlan: string;
@@ -30,7 +32,8 @@ export const PROVIDERS: Record<ProviderId, ProviderMeta> = {
     keyPrefix: "sk-ant-",
     keyPlaceholder: "sk-ant-api03-…",
     docsUrl: "https://console.anthropic.com/settings/keys",
-    oauthPlan: "Claude Pro",
+    supportsAccount: true,
+    oauthPlan: "Your Claude subscription",
     apiKeyPlan: "Anthropic API - pay as you go",
   },
   openai: {
@@ -44,6 +47,7 @@ export const PROVIDERS: Record<ProviderId, ProviderMeta> = {
     keyPrefix: "sk-",
     keyPlaceholder: "sk-proj-…",
     docsUrl: "https://platform.openai.com/api-keys",
+    supportsAccount: false,
     oauthPlan: "ChatGPT Plus",
     apiKeyPlan: "OpenAI API - pay as you go",
   },

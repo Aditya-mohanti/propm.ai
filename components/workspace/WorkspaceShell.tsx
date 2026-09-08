@@ -15,6 +15,8 @@ import SkillsScreen from "./screens/SkillsScreen";
 import RunsScreen from "./screens/RunsScreen";
 import AccountScreen from "./screens/AccountScreen";
 import CanvasScreen from "./screens/CanvasScreen";
+import ProjectHubScreen from "./screens/ProjectHubScreen";
+import DevBar from "./DevBar";
 import {
   FolderIcon,
   ClockIcon,
@@ -23,6 +25,10 @@ import {
   DocIcon,
   BranchIcon,
   PhoneIcon,
+  SearchIcon,
+  ChartIcon,
+  NoteIcon,
+  GridIcon,
   GearIcon,
   PlugIcon,
 } from "./icons";
@@ -32,10 +38,30 @@ type ScreenId =
   | "runs"
   | "agents"
   | "skills"
+  | "project"
   | "prd"
-  | "decisions"
   | "prototype"
+  | "research"
+  | "data"
+  | "notes"
+  | "decisions"
   | "account";
+
+/** Screens that render a canvas and therefore need a project open. */
+const CANVAS_SCREENS = [
+  "prd",
+  "prototype",
+  "research",
+  "data",
+  "notes",
+  "decisions",
+] as const;
+
+type CanvasScreenId = (typeof CANVAS_SCREENS)[number];
+
+function isCanvasScreen(id: ScreenId): id is CanvasScreenId {
+  return (CANVAS_SCREENS as readonly string[]).includes(id);
+}
 
 const NAV: {
   group: string;
@@ -56,11 +82,15 @@ const NAV: {
     ],
   },
   {
-    group: "Canvases",
+    group: "Project",
     items: [
+      { id: "project", label: "Overview", icon: <GridIcon size={16} /> },
+      { id: "research", label: "Research", icon: <SearchIcon size={16} /> },
       { id: "prd", label: "PRD", icon: <DocIcon size={16} /> },
+      { id: "prototype", label: "Design", icon: <PhoneIcon size={16} /> },
+      { id: "data", label: "Data", icon: <ChartIcon size={16} /> },
+      { id: "notes", label: "Notes", icon: <NoteIcon size={16} /> },
       { id: "decisions", label: "Decisions", icon: <BranchIcon size={16} /> },
-      { id: "prototype", label: "Prototype", icon: <PhoneIcon size={16} /> },
     ],
   },
 ];
@@ -70,9 +100,13 @@ const TITLES: Record<ScreenId, string> = {
   runs: "Run history",
   agents: "Agents",
   skills: "Skills",
+  project: "Overview",
   prd: "PRD",
+  prototype: "Design & prototyping",
+  research: "Research",
+  data: "Data",
+  notes: "Notes",
   decisions: "Decisions",
-  prototype: "Prototype",
   account: "Account",
 };
 
@@ -113,6 +147,8 @@ export default function WorkspaceShell() {
     );
   }
 
+  // The /workspace route redirects when there is no session, so reaching here
+  // without a user means the session expired mid-visit.
   if (!user) {
     return (
       <div
@@ -128,14 +164,12 @@ export default function WorkspaceShell() {
         <div style={{ width: "100%", maxWidth: 520 }}>
           <EmptyState
             icon={<FolderIcon size={22} />}
-            title="Sign in to open your workspace"
-            body="Projects, agents and run history are tied to your account, so there is nothing to show until we know who you are."
-            actions={[
-              { label: "Go to sign in", href: "/#waitlist" },
-              { label: "Back to the site", href: "/", variant: "ghost" },
-            ]}
+            title="Your session ended"
+            body="Sign in again with Google to get back to your projects, agents and run history."
+            actions={[{ label: "Sign in again", href: "/signin?auth=expired" }]}
           />
         </div>
+        <DevBar />
       </div>
     );
   }
@@ -145,7 +179,7 @@ export default function WorkspaceShell() {
 
   function openProject(id: string) {
     setActiveProjectId(id);
-    setScreen("prd");
+    setScreen("project");
   }
 
   const counts: Partial<Record<ScreenId, number>> = {
@@ -193,8 +227,8 @@ export default function WorkspaceShell() {
               width: 24,
               height: 24,
               borderRadius: 6,
-              background: "var(--brand-800)",
-              color: "var(--white)",
+              background: "var(--primary)",
+              color: "var(--primary-fg)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -320,9 +354,30 @@ export default function WorkspaceShell() {
             background: "var(--card)",
           }}
         >
-          <span style={{ fontSize: 12.5, color: "var(--fg3)" }}>
-            {activeProject ? activeProject.name : "All projects"}
-          </span>
+          {activeProject ? (
+            <button
+              type="button"
+              onClick={() => setScreen("project")}
+              style={{
+                border: 0,
+                background: "transparent",
+                padding: 0,
+                fontSize: 12.5,
+                fontFamily: "inherit",
+                color: "var(--fg2)",
+                cursor: "pointer",
+                textDecoration: "underline",
+                textUnderlineOffset: 3,
+                textDecorationColor: "var(--input)",
+              }}
+            >
+              {activeProject.name}
+            </button>
+          ) : (
+            <span style={{ fontSize: 12.5, color: "var(--fg3)" }}>
+              All projects
+            </span>
+          )}
           <span style={{ fontSize: 12.5, color: "var(--fg3)" }}>/</span>
           <span style={{ fontFamily: "var(--font-serif)", fontSize: 15, fontWeight: 600 }}>
             {TITLES[screen]}
@@ -412,7 +467,15 @@ export default function WorkspaceShell() {
 
           {screen === "skills" && <SkillsScreen />}
 
-          {(screen === "prd" || screen === "decisions" || screen === "prototype") && (
+          {screen === "project" && (
+            <ProjectHubScreen
+              activeProjectId={activeProjectId}
+              onOpenCanvas={(kind) => setScreen(kind as ScreenId)}
+              onGoToProjects={() => setScreen("projects")}
+            />
+          )}
+
+          {isCanvasScreen(screen) && (
             <CanvasScreen
               kind={screen}
               activeProjectId={activeProjectId}
@@ -438,6 +501,8 @@ export default function WorkspaceShell() {
           }}
         />
       )}
+
+      <DevBar />
     </div>
   );
 }
@@ -449,11 +514,14 @@ function ScreenHeading({ screen }: { screen: ScreenId }) {
     runs: "Every agent pass, what it touched and which model answered.",
     agents:
       "Give an agent a niche, a set of skills and the canvases it may write.",
-    skills:
-      "A skill is a named procedure any agent can borrow.",
-    prd: "The spec for the project you have open.",
+    skills: "A skill is a named procedure any agent can borrow.",
+    project: "Everything this project can hold, in one place.",
+    prd: "Problem, success criteria, scope cuts and open questions.",
+    prototype: "Screens and flows drawn against this project's spec.",
+    research: "Market size, competitors and pricing, with sources attached.",
+    data: "Charts and BI views over your revenue, growth and funnel numbers.",
+    notes: "Loose thinking that is not ready to be a document yet.",
     decisions: "What was decided, by whom, and what it ruled out.",
-    prototype: "Screens drawn against this project's spec.",
     account: "Your session, your provider connection and where the runs went.",
   };
 

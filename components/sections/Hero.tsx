@@ -1,6 +1,7 @@
 "use client";
 
 import WaitlistForm from "@/components/ui/WaitlistForm";
+import DocCanvas from "./DocCanvas";
 import { useAuth } from "@/lib/auth-context";
 
 const AGENTS = [
@@ -71,7 +72,7 @@ export default function Hero() {
           </div>
         ) : (
           <a href="#waitlist" className="btn-primary" style={{ height: 32, padding: "0 14px" }}>
-            Join the waitlist
+            Join ProPM
           </a>
         )}
       </header>
@@ -198,27 +199,9 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* Doc canvas animation */}
-          <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden", boxShadow: "var(--shadow-sm)" }}>
-            <div style={{
-              display: "flex", alignItems: "center", gap: 8,
-              padding: "10px 16px", borderBottom: "1px solid var(--border)",
-            }}>
-              <span style={{ width: 6, height: 6, borderRadius: 9999, background: "var(--brand-600)", display: "block" }} />
-              <span style={{ fontSize: 13, fontWeight: 500 }}>Doc canvas</span>
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg2)", marginLeft: "auto" }}>PRD · draft · 14:22</span>
-            </div>
-            <div style={{ padding: 16, display: "flex", flexDirection: "column", gap: 8 }}>
-              <div style={{ animation: "lineGrow 7s var(--ease-out) infinite", animationDelay: ".1s", transformOrigin: "left", height: 12, width: "58%", borderRadius: 2, background: "var(--stone-300)" }} />
-              <div style={{ animation: "lineGrow 7s var(--ease-out) infinite", animationDelay: ".35s", transformOrigin: "left", height: 6, width: "100%", borderRadius: 2, background: "var(--stone-200)" }} />
-              <div style={{ animation: "lineGrow 7s var(--ease-out) infinite", animationDelay: ".55s", transformOrigin: "left", height: 6, width: "94%", borderRadius: 2, background: "var(--stone-200)" }} />
-              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                <div style={{ animation: "lineGrow 7s var(--ease-out) infinite", animationDelay: ".8s", transformOrigin: "left", height: 6, width: 180, borderRadius: 2, background: "var(--stone-200)" }} />
-                <span style={{ animation: "caretBlink 1s step-end infinite", width: 2, height: 14, background: "var(--brand-800)", display: "block" }} />
-              </div>
-            </div>
-          </div>
-          <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg2)" }}>illustrative loop — agents assembling, then drafting</div>
+          {/* Doc canvas — demo loop until you click into it, then editable */}
+          <DocCanvas />
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg2)" }}>agents assembling, then drafting — the doc above is yours to edit</div>
         </div>
       </div>
     </div>

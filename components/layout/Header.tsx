@@ -34,7 +34,7 @@ export default function Header() {
         <span style={{
           fontFamily: "var(--font-serif)", fontSize: 18, fontWeight: 600,
           letterSpacing: "-0.01em",
-        }}>PmPro.ai</span>
+        }}>ProPM</span>
         <span className="tag tag-brand" style={{ marginLeft: 4 }}>Beta</span>
       </div>
 
@@ -89,8 +89,8 @@ export default function Header() {
           </button>
         </div>
       ) : (
-        <a href="#waitlist" className="btn-primary" style={{ height: 32, padding: "0 14px" }}>
-          Join the waitlist
+        <a href="/signin" className="btn-primary" style={{ height: 32, padding: "0 14px" }}>
+          Join ProPM
         </a>
       )}
     </header>

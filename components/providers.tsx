@@ -1,11 +1,17 @@
 "use client";
 
-import { AuthProvider } from "@/lib/auth-context";
+import { AuthProvider, type User } from "@/lib/auth-context";
 import { WorkspaceProvider } from "@/lib/workspace-context";
 
-export default function Providers({ children }: { children: React.ReactNode }) {
+export default function Providers({
+  user,
+  children,
+}: {
+  user: User | null;
+  children: React.ReactNode;
+}) {
   return (
-    <AuthProvider>
+    <AuthProvider user={user}>
       <WorkspaceProvider>{children}</WorkspaceProvider>
     </AuthProvider>
   );

@@ -29,13 +29,45 @@ export interface Connection {
   models: string[];
 }
 
-export type CanvasKind = "prd" | "prototype" | "decisions" | "model" | "sheet";
+export type CanvasKind =
+  | "prd"
+  | "prototype"
+  | "research"
+  | "data"
+  | "notes"
+  | "decisions"
+  | "model"
+  | "sheet";
 
 export interface Canvas {
   kind: CanvasKind;
   name: string;
   status: string;
   detail?: string;
+  /**
+   * What this surface reads from the rest of the project — the
+   * "Goal · … · Decision · …" line under each surface in the overview.
+   */
+  inherits?: string[];
+}
+
+/** A source every surface on the project can read. */
+export interface ContextRef {
+  /** "Goal", "PDF", "Notion", "SQL", "Notes" — rendered as the chip prefix. */
+  kind: string;
+  label: string;
+}
+
+export interface DecisionEntry {
+  id: string;
+  title: string;
+  /** Human date as shown, e.g. "12 Mar". Empty while still open. */
+  when: string;
+  /** Where it was decided off, e.g. "the prototype". */
+  source: string;
+  status: "decided" | "open";
+  /** For open questions: what it is holding up. */
+  note?: string;
 }
 
 export interface Project {
@@ -47,6 +79,19 @@ export interface Project {
   updatedAt: string;
   agentIds: string[];
   canvases: Canvas[];
+
+  /* The fields below are optional so projects stored by an earlier build
+     still parse. Every overview section renders an empty state without
+     them, which is also what a brand-new project looks like. */
+
+  /** Display date the project started, e.g. "4 Mar". */
+  startedAt?: string;
+  /** The headline number, e.g. 12% reach a second session. */
+  metric?: { value: string; label: string };
+  context?: ContextRef[];
+  decisions?: DecisionEntry[];
+  /** Suggested next actions offered in the overview prompt bar. */
+  suggestions?: string[];
 }
 
 export interface Agent {
@@ -77,12 +122,26 @@ export interface Run {
   at: string;
 }
 
+export interface ChatMessage {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  at: string;
+  /** Which provider answered, so a switched connection stays legible later. */
+  provider?: ProviderId;
+  model?: string;
+  /** Set when the turn failed, so errors persist in the transcript. */
+  failed?: boolean;
+}
+
 export interface WorkspaceState {
   projects: Project[];
   agents: Agent[];
   skills: Skill[];
   runs: Run[];
   connection: Connection | null;
+  /** Chat transcripts keyed by project id. */
+  chats: Record<string, ChatMessage[]>;
   /** False during SSR and the hydration pass, true once storage has been read. */
   ready: boolean;
 }
@@ -93,6 +152,7 @@ const PENDING: WorkspaceState = {
   skills: [],
   runs: [],
   connection: null,
+  chats: {},
   ready: false,
 };
 
@@ -120,6 +180,10 @@ function parseWorkspace(raw: string | null): WorkspaceState {
       skills: Array.isArray(parsed.skills) ? parsed.skills : [],
       runs: Array.isArray(parsed.runs) ? parsed.runs : [],
       connection: parsed.connection ?? null,
+      chats:
+        parsed.chats && typeof parsed.chats === "object" && !Array.isArray(parsed.chats)
+          ? parsed.chats
+          : {},
       ready: true,
     };
   } catch {
@@ -145,6 +209,7 @@ function storeFor(email: string | null) {
           skills: v.skills,
           runs: v.runs,
           connection: v.connection,
+          chats: v.chats,
         }),
     }),
   );
@@ -171,6 +236,19 @@ interface WorkspaceCtx extends WorkspaceState {
   disconnect: () => void;
 
   logRun: (input: Omit<Run, "id" | "at">) => void;
+
+  /** Append a turn to a project transcript and return it. */
+  appendChatMessage: (
+    projectId: string,
+    input: Omit<ChatMessage, "id" | "at">,
+  ) => ChatMessage;
+  /** Drop a project transcript. */
+  clearChat: (projectId: string) => void;
+
+  /** Empty this workspace back to its starting state. */
+  reset: () => void;
+  /** Swap the whole workspace in one go. Used by the dev tools to seed. */
+  replaceAll: (next: Omit<WorkspaceState, "ready">) => void;
 }
 
 const WorkspaceContext = createContext<WorkspaceCtx | null>(null);
@@ -263,6 +341,43 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     [store],
   );
 
+  const appendChatMessage = useCallback<WorkspaceCtx["appendChatMessage"]>(
+    (projectId, input) => {
+      const message: ChatMessage = {
+        ...input,
+        id: newId("msg"),
+        at: new Date().toISOString(),
+      };
+      store.update((s) => ({
+        ...s,
+        chats: { ...s.chats, [projectId]: [...(s.chats[projectId] ?? []), message] },
+      }));
+      return message;
+    },
+    [store],
+  );
+
+  const clearChat = useCallback(
+    (projectId: string) => {
+      store.update((s) => {
+        const next = { ...s.chats };
+        delete next[projectId];
+        return { ...s, chats: next };
+      });
+    },
+    [store],
+  );
+
+  const reset = useCallback(
+    () => store.set({ ...PENDING, ready: true }),
+    [store],
+  );
+
+  const replaceAll = useCallback<WorkspaceCtx["replaceAll"]>(
+    (next) => store.set({ ...next, ready: true }),
+    [store],
+  );
+
   const value = useMemo<WorkspaceCtx>(
     () => ({
       ...state,
@@ -274,6 +389,10 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       connect,
       disconnect,
       logRun,
+      appendChatMessage,
+      clearChat,
+      reset,
+      replaceAll,
     }),
     [
       state,
@@ -284,6 +403,10 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       connect,
       disconnect,
       logRun,
+      appendChatMessage,
+      clearChat,
+      reset,
+      replaceAll,
     ],
   );
 

@@ -147,6 +147,12 @@ export default function AccountScreen({
                         className="btn-primary"
                         style={{ height: 34, padding: "0 14px" }}
                         onClick={() => {
+                          // Clear the server-side credential too, not just the
+                          // local flag, or the key would outlive the UI state.
+                          void fetch(
+                            `/api/connect?provider=${connection.provider}`,
+                            { method: "DELETE" },
+                          ).catch(() => {});
                           disconnect();
                           setConfirming(false);
                         }}
@@ -238,7 +244,7 @@ export default function AccountScreen({
                       display: "block",
                       height: 4,
                       borderRadius: 2,
-                      background: "var(--stone-100)",
+                      background: "var(--track)",
                       overflow: "hidden",
                     }}
                   >

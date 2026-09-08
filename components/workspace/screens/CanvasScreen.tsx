@@ -2,7 +2,15 @@
 
 import { useWorkspace, type CanvasKind } from "@/lib/workspace-context";
 import EmptyState from "../EmptyState";
-import { DocIcon, BranchIcon, PhoneIcon, FolderIcon } from "../icons";
+import {
+  DocIcon,
+  BranchIcon,
+  PhoneIcon,
+  FolderIcon,
+  SearchIcon,
+  ChartIcon,
+  NoteIcon,
+} from "../icons";
 
 interface CanvasCopy {
   label: string;
@@ -21,6 +29,30 @@ const COPY: Record<CanvasKind, CanvasCopy> = {
     emptyBody:
       "Start with the problem in one paragraph and what success looks like in three lines. An agent can take it from there, and every edit you make afterwards is kept.",
     cta: "Draft the first section",
+  },
+  research: {
+    label: "Research",
+    icon: <SearchIcon size={22} />,
+    emptyTitle: "No research yet",
+    emptyBody:
+      "Point an agent at a market, a competitor set or a pricing page and it comes back with a sourced writeup — plus an explicit list of what it could not verify.",
+    cta: "Start a research pass",
+  },
+  data: {
+    label: "Data",
+    icon: <ChartIcon size={22} />,
+    emptyTitle: "No data connected",
+    emptyBody:
+      "Bring in a CSV or a warehouse table and chart it — revenue, growth, funnel and retention views, built from the columns you actually have.",
+    cta: "Connect a data source",
+  },
+  notes: {
+    label: "Notes",
+    icon: <NoteIcon size={22} />,
+    emptyTitle: "No notes yet",
+    emptyBody:
+      "Somewhere for call notes, half-formed ideas and the things not ready to be a document. Anything here can be promoted into the PRD later.",
+    cta: "Write a note",
   },
   decisions: {
     label: "Decisions",
