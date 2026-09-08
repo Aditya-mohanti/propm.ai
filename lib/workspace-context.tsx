@@ -122,12 +122,26 @@ export interface Run {
   at: string;
 }
 
+export interface ChatMessage {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  at: string;
+  /** Which provider answered, so a switched connection stays legible later. */
+  provider?: ProviderId;
+  model?: string;
+  /** Set when the turn failed, so errors persist in the transcript. */
+  failed?: boolean;
+}
+
 export interface WorkspaceState {
   projects: Project[];
   agents: Agent[];
   skills: Skill[];
   runs: Run[];
   connection: Connection | null;
+  /** Chat transcripts keyed by project id. */
+  chats: Record<string, ChatMessage[]>;
   /** False during SSR and the hydration pass, true once storage has been read. */
   ready: boolean;
 }
@@ -138,6 +152,7 @@ const PENDING: WorkspaceState = {
   skills: [],
   runs: [],
   connection: null,
+  chats: {},
   ready: false,
 };
 
@@ -165,6 +180,10 @@ function parseWorkspace(raw: string | null): WorkspaceState {
       skills: Array.isArray(parsed.skills) ? parsed.skills : [],
       runs: Array.isArray(parsed.runs) ? parsed.runs : [],
       connection: parsed.connection ?? null,
+      chats:
+        parsed.chats && typeof parsed.chats === "object" && !Array.isArray(parsed.chats)
+          ? parsed.chats
+          : {},
       ready: true,
     };
   } catch {
@@ -190,6 +209,7 @@ function storeFor(email: string | null) {
           skills: v.skills,
           runs: v.runs,
           connection: v.connection,
+          chats: v.chats,
         }),
     }),
   );
@@ -216,6 +236,14 @@ interface WorkspaceCtx extends WorkspaceState {
   disconnect: () => void;
 
   logRun: (input: Omit<Run, "id" | "at">) => void;
+
+  /** Append a turn to a project transcript and return it. */
+  appendChatMessage: (
+    projectId: string,
+    input: Omit<ChatMessage, "id" | "at">,
+  ) => ChatMessage;
+  /** Drop a project transcript. */
+  clearChat: (projectId: string) => void;
 
   /** Empty this workspace back to its starting state. */
   reset: () => void;
@@ -313,6 +341,33 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     [store],
   );
 
+  const appendChatMessage = useCallback<WorkspaceCtx["appendChatMessage"]>(
+    (projectId, input) => {
+      const message: ChatMessage = {
+        ...input,
+        id: newId("msg"),
+        at: new Date().toISOString(),
+      };
+      store.update((s) => ({
+        ...s,
+        chats: { ...s.chats, [projectId]: [...(s.chats[projectId] ?? []), message] },
+      }));
+      return message;
+    },
+    [store],
+  );
+
+  const clearChat = useCallback(
+    (projectId: string) => {
+      store.update((s) => {
+        const next = { ...s.chats };
+        delete next[projectId];
+        return { ...s, chats: next };
+      });
+    },
+    [store],
+  );
+
   const reset = useCallback(
     () => store.set({ ...PENDING, ready: true }),
     [store],
@@ -334,6 +389,8 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       connect,
       disconnect,
       logRun,
+      appendChatMessage,
+      clearChat,
       reset,
       replaceAll,
     }),
@@ -346,6 +403,8 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       connect,
       disconnect,
       logRun,
+      appendChatMessage,
+      clearChat,
       reset,
       replaceAll,
     ],

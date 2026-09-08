@@ -7,6 +7,7 @@ import EmptyState from "../EmptyState";
 import { FolderIcon } from "../icons";
 import ProjectOverviewA from "./ProjectOverviewA";
 import ProjectOverviewB from "./ProjectOverviewB";
+import ProjectChat from "../ProjectChat";
 
 type Variant = "a" | "b";
 
@@ -122,19 +123,26 @@ export default function ProjectHubScreen({
         </div>
       </div>
 
-      {variant === "a" ? (
-        <ProjectOverviewA
-          project={project}
-          data={data}
-          onOpenCanvas={onOpenCanvas}
-        />
-      ) : (
-        <ProjectOverviewB
-          project={project}
-          data={data}
-          onOpenCanvas={onOpenCanvas}
-        />
-      )}
+      {/* Overview beside the project chat. Below ~1100px the chat drops under
+          the overview rather than squeezing both into unreadable columns. */}
+      <div className="ws-project-grid">
+        <div style={{ minWidth: 0 }}>
+          {variant === "a" ? (
+            <ProjectOverviewA
+              project={project}
+              data={data}
+              onOpenCanvas={onOpenCanvas}
+            />
+          ) : (
+            <ProjectOverviewB
+              project={project}
+              data={data}
+              onOpenCanvas={onOpenCanvas}
+            />
+          )}
+        </div>
+        <ProjectChat project={project} />
+      </div>
     </div>
   );
 }

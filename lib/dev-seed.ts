@@ -1,5 +1,6 @@
 import type {
   Agent,
+  ChatMessage,
   Connection,
   Project,
   Run,
@@ -328,6 +329,27 @@ const CONNECTION: Connection = {
   models: ["Claude Sonnet 4.5", "Claude Opus 4.1", "Claude Haiku 4.5"],
 };
 
+/** A short prior thread, so chat history is visible without typing one. */
+const CHATS: Record<string, ChatMessage[]> = {
+  prj_demo1: [
+    {
+      id: "msg_d1",
+      role: "user",
+      content: "What is the biggest risk in the current PRD draft?",
+      at: hoursAgo(3),
+    },
+    {
+      id: "msg_d2",
+      role: "assistant",
+      content:
+        "The success criteria are anchored on a desktop conversion rate, and there is no funnel export to check them against. Until someone owns that export, the 15% CTA target is a guess rather than a target — which is also why it is still marked provisional.",
+      at: hoursAgo(3),
+      provider: "claude",
+      model: "claude-opus-5",
+    },
+  ],
+};
+
 export function demoWorkspace(): WorkspaceState {
   return {
     projects: PROJECTS,
@@ -335,6 +357,7 @@ export function demoWorkspace(): WorkspaceState {
     skills: SKILLS,
     runs: RUNS,
     connection: CONNECTION,
+    chats: CHATS,
     ready: true,
   };
 }

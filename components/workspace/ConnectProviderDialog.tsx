@@ -131,7 +131,7 @@ export default function ConnectProviderDialog({
 
   const steps = method === "oauth" ? OAUTH_STEPS : KEY_STEPS;
 
-  function finish(m: ConnectMethod, hint?: string) {
+  function finish(m: ConnectMethod, hint?: string, models?: string[]) {
     connect({
       provider: provider.id,
       accountEmail: user?.email ?? "you@yourcompany.com",
@@ -139,34 +139,63 @@ export default function ConnectProviderDialog({
       method: m,
       keyHint: hint,
       connectedAt: new Date().toISOString(),
-      models: provider.models,
+      // Models the key can actually see, as reported by the provider.
+      models: models && models.length > 0 ? models : provider.models,
     });
     setStep("done");
   }
 
-  function run(m: ConnectMethod, hint?: string) {
+  /**
+   * Hands the key to our own server, which verifies it against the provider
+   * and stores it in an httpOnly cookie. Nothing here keeps the key: it lives
+   * in this component only for as long as the request takes.
+   */
+  async function submitKey() {
+    const shape = checkKey(provider, key);
+    if (!shape.ok) {
+      setKeyError(shape.message ?? "That key does not look right.");
+      return;
+    }
+
     clearTimers();
-    setMethod(m);
+    setKeyError(null);
+    setMethod("api-key");
     setProgress(0);
     setStep("connecting");
 
-    const list = m === "oauth" ? OAUTH_STEPS : KEY_STEPS;
-    list.forEach((_, i) => {
-      timers.current.push(setTimeout(() => setProgress(i + 1), 520 * (i + 1)));
+    // The steps advance on a timer purely as progress feedback; the request
+    // below is what actually decides the outcome.
+    KEY_STEPS.forEach((_, i) => {
+      timers.current.push(setTimeout(() => setProgress(i + 1), 380 * (i + 1)));
     });
-    timers.current.push(
-      setTimeout(() => finish(m, hint), 520 * (list.length + 1)),
-    );
-  }
 
-  function submitKey() {
-    const result = checkKey(provider, key);
-    if (!result.ok) {
-      setKeyError(result.message ?? "That key does not look right.");
-      return;
+    try {
+      const res = await fetch("/api/connect", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ provider: provider.id, apiKey: key }),
+      });
+      const data = (await res.json()) as {
+        keyHint?: string;
+        models?: string[];
+        error?: string;
+      };
+
+      clearTimers();
+
+      if (!res.ok || data.error) {
+        setFailure(data.error ?? `The provider rejected that (${res.status}).`);
+        setStep("error");
+        return;
+      }
+
+      setKey("");
+      finish("api-key", data.keyHint ?? keyHint(key), data.models);
+    } catch {
+      clearTimers();
+      setFailure("Could not reach the server. Is the dev server running?");
+      setStep("error");
     }
-    setKeyError(null);
-    run("api-key", keyHint(key));
   }
 
   return (
@@ -355,14 +384,6 @@ export default function ConnectProviderDialog({
               <button
                 type="button"
                 className="btn-primary"
-                style={{ ...BTN, height: 40, justifyContent: "center" }}
-                onClick={() => run("oauth")}
-              >
-                Continue with {provider.name}
-              </button>
-              <button
-                type="button"
-                className="btn-ghost"
                 style={{ ...BTN, height: 40, justifyContent: "center", gap: 7 }}
                 onClick={() => {
                   setMethod("api-key");
@@ -370,8 +391,20 @@ export default function ConnectProviderDialog({
                 }}
               >
                 <KeyIcon size={15} />
-                Use an API key instead
+                Connect with an API key
               </button>
+              <span
+                style={{
+                  fontSize: 11.5,
+                  lineHeight: 1.55,
+                  color: "var(--fg3)",
+                  textAlign: "center",
+                }}
+              >
+                Signing in with a {provider.name} account needs a registered
+                OAuth app, which this workspace does not have yet. An API key
+                gives the same access today.
+              </span>
             </div>
 
             <button type="button" onClick={() => setStep("choose")} style={LINK}>
@@ -408,7 +441,7 @@ export default function ConnectProviderDialog({
                     if (keyError) setKeyError(null);
                   }}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter") submitKey();
+                    if (e.key === "Enter") void submitKey();
                   }}
                   aria-invalid={keyError ? true : undefined}
                   style={{
@@ -480,7 +513,7 @@ export default function ConnectProviderDialog({
                 type="button"
                 className="btn-primary"
                 style={BTN}
-                onClick={submitKey}
+                onClick={() => void submitKey()}
               >
                 Connect
               </button>
