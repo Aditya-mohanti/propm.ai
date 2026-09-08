@@ -7,12 +7,12 @@ type Tab = "doc" | "sheet" | "proto" | "dash";
 
 function DocCanvas() {
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 280px", minHeight: 420 }}>
-      <div style={{ padding: "32px 40px", display: "flex", flexDirection: "column", gap: 14 }}>
+    <div className="pg-doc" style={{ minHeight: 420 }}>
+      <div style={{ padding: "clamp(20px, 3.5vw, 32px) clamp(18px, 4vw, 40px)", display: "flex", flexDirection: "column", gap: 14 }}>
         <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg2)" }}>PRD · Sticky mobile CTA · draft 3</span>
-        <span style={{ fontFamily: "var(--font-serif)", fontSize: 24, fontWeight: 600 }}>Problem</span>
+        <span className="h3">Problem</span>
         <p style={{ fontSize: 13, lineHeight: "22px", color: "var(--fg1)", maxWidth: "64ch", margin: 0 }}>On mobile the value proposition and the primary action fall below the fold, so cold visitors scroll once and drop off before they know what the product is.</p>
-        <span style={{ fontFamily: "var(--font-serif)", fontSize: 24, fontWeight: 600, marginTop: 8 }}>Success criteria</span>
+        <span className="h3" style={{ marginTop: 8 }}>Success criteria</span>
         <div style={{ display: "flex", flexDirection: "column", gap: 6, maxWidth: "64ch" }}>
           {["Hero CTA click rate ≥ 15% in 30 days", "Form completion (starts → submits) ≥ 70%", "50% of visitors reach the playground section"].map(s => (
             <span key={s} style={{ display: "flex", gap: 10, fontSize: 13, lineHeight: "20px" }}>
@@ -21,7 +21,7 @@ function DocCanvas() {
           ))}
         </div>
       </div>
-      <div style={{ borderLeft: "1px solid var(--border)", padding: 20, background: "var(--muted)", display: "flex", flexDirection: "column", gap: 10 }}>
+      <div className="pg-doc-notes" style={{ padding: 20, background: "var(--muted)", display: "flex", flexDirection: "column", gap: 10 }}>
         <span style={{ fontSize: 12, color: "var(--fg2)" }}>Agent notes</span>
         <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8, padding: 12 }}>
           <span style={{ fontSize: 12, fontWeight: 600, display: "block" }}>Assumption flagged</span>
@@ -38,8 +38,8 @@ function DocCanvas() {
 
 function SheetCanvas() {
   return (
-    <div style={{ padding: 20, minHeight: 420, background: "var(--stone-100)" }}>
-      <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden" }}>
+    <div style={{ padding: "clamp(12px, 2.5vw, 20px)", minHeight: 420, background: "var(--stone-100)" }}>
+      <div className="pg-sheet" data-scroller style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8, overflow: "auto" }}>
         <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr 1fr 1fr", background: "var(--muted)", borderBottom: "1px solid var(--border)", fontSize: 12, color: "var(--fg2)" }}>
           {["Segment","Users","ARR","Confidence"].map((h, i) => (
             <span key={h} style={{ padding: "10px 12px", textAlign: i > 0 ? "right" : undefined as never }}>{h}</span>
@@ -75,8 +75,8 @@ function SheetCanvas() {
 
 function ProtoCanvas() {
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "200px 1fr", minHeight: 420 }}>
-      <div style={{ borderRight: "1px solid var(--border)", padding: 16, display: "flex", flexDirection: "column", gap: 8, background: "var(--muted)" }}>
+    <div className="pg-proto" style={{ minHeight: 420 }}>
+      <div className="pg-proto-aside" style={{ padding: 16, display: "flex", flexDirection: "column", gap: 8, background: "var(--muted)" }}>
         <span style={{ fontSize: 12, color: "var(--fg2)" }}>Screens</span>
         <span style={{ height: 28, display: "flex", alignItems: "center", padding: "0 8px", borderRadius: 4, background: "var(--card)", border: "1px solid var(--brand-tint-strong)", fontSize: 13, fontWeight: 500 }}>Onboarding — step 2</span>
         {["Team invite", "Empty state"].map(s => (
@@ -84,8 +84,8 @@ function ProtoCanvas() {
         ))}
         <span style={{ marginTop: "auto", fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg2)", lineHeight: "16px" }}>prompt → &ldquo;make the CTA sticky on mobile&rdquo;</span>
       </div>
-      <div style={{ padding: 24, background: "var(--stone-100)", display: "flex", gap: 20, alignItems: "flex-start", justifyContent: "center" }}>
-        <div style={{ width: 236, background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden", boxShadow: "var(--shadow-default)" }}>
+      <div style={{ padding: "clamp(16px, 3vw, 24px)", background: "var(--stone-100)", display: "flex", flexWrap: "wrap" as const, gap: 20, alignItems: "flex-start", justifyContent: "center" }}>
+        <div style={{ width: "min(236px, 100%)", background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden", boxShadow: "var(--shadow-default)" }}>
           <div style={{ height: 28, borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", padding: "0 12px", gap: 6 }}>
             <span style={{ width: 6, height: 6, borderRadius: 9999, background: "var(--stone-300)" }} />
             <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg2)" }}>9:41</span>
@@ -99,7 +99,7 @@ function ProtoCanvas() {
             <span style={{ height: 44, borderRadius: 6, background: "var(--primary)", color: "var(--primary-fg)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 500, marginTop: 4 }}>Continue</span>
           </div>
         </div>
-        <div style={{ width: 236, background: "var(--card)", border: "1px dashed var(--stone-300)", borderRadius: 12, minHeight: 300, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8 }}>
+        <div className="hide-sm" style={{ width: "min(236px, 100%)", background: "var(--card)", border: "1px dashed var(--stone-300)", borderRadius: 12, minHeight: 300, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8 }}>
           <span style={{ fontSize: 20, color: "var(--stone-400)", fontWeight: 600 }}>+</span>
           <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg2)", textAlign: "center", padding: "0 20px", lineHeight: "16px" }}>describe the next screen — the agent draws it</span>
         </div>
@@ -113,8 +113,8 @@ const BAR_COLORS  = ["var(--brand-200)","var(--brand-200)","var(--brand-200)","v
 
 function DashCanvas() {
   return (
-    <div style={{ padding: 20, background: "var(--stone-100)", display: "flex", flexDirection: "column", gap: 12, minHeight: 420 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
+    <div style={{ padding: "clamp(12px, 2.5vw, 20px)", background: "var(--stone-100)", display: "flex", flexDirection: "column", gap: 12, minHeight: 420 }}>
+      <div className="pg-metrics">
         {[
           { label: "Weekly active PMs",   val: "1,284",  delta: "+12.4% WoW", color: "var(--green-800)"  },
           { label: "Agents created",      val: "3,910",  delta: "+8.1% WoW",  color: "var(--green-800)"  },
@@ -128,7 +128,7 @@ function DashCanvas() {
           </div>
         ))}
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 12, flex: 1 }}>
+      <div className="pg-charts">
         <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8, padding: 16, display: "flex", flexDirection: "column" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <span style={{ fontFamily: "var(--font-serif)", fontSize: 18, fontWeight: 500 }}>Agent runs by week</span>
@@ -202,8 +202,7 @@ const PROJECTS = [
 
 function ProjectsSidebar({ activeProject }: { activeProject: string }) {
   return (
-    <div style={{
-      width: 240, flexShrink: 0,
+    <div className="pg-sidebar" style={{
       border: "1px solid var(--border)", borderRadius: 8,
       background: "var(--muted)", display: "flex", flexDirection: "column",
       alignSelf: "flex-start",
@@ -255,22 +254,22 @@ export default function Playground() {
   const [tab, setTab] = useState<Tab>("proto");
 
   return (
-    <div id="playground" style={{ background: "var(--card)", borderRadius: 12, padding: 40 }}>
-      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 32, marginBottom: 20 }}>
+    <div id="playground" className="section">
+      <div className="section-head" style={{ marginBottom: 20 }}>
         <div>
           <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg2)", marginBottom: 8 }}>
             {user ? "your workspace · projects" : "idea playground · runs on credits"}
           </div>
-          <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 30, fontWeight: 600, letterSpacing: "-0.01em", margin: 0 }}>
+          <h2 className="h2">
             {user ? "Your agents. Your context. Your output." : "Brainstorm an idea. Or hand it your Notion."}
           </h2>
-          <p style={{ fontSize: 16, lineHeight: "26px", color: "var(--fg2)", marginTop: 10, maxWidth: "62ch", textWrap: "pretty" as const }}>
+          <p className="body-lg" style={{ color: "var(--fg2)", marginTop: 10, maxWidth: "62ch", textWrap: "pretty" as const }}>
             {user
               ? "Every project is a goal with its own agents, canvases, context and credits. Pick a project or start a new one."
               : "Type a half-formed idea, paste a Notion page, or drop a file. One credit turns it into a real artifact — a PRD you can ship, a sheet that adds up, a clickable prototype, a dashboard with the query behind it."}
           </p>
         </div>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6, flexShrink: 0 }}>
+        <div className="section-head-aside" style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6, flexShrink: 0 }}>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 6, height: 24, padding: "0 8px", borderRadius: 6, background: "var(--brand-tint-bg)", border: "1px solid var(--brand-tint-border)", color: "var(--brand-800)", fontSize: 12, fontWeight: 500 }}>
             {user ? "5 of 5 credits left" : "3 of 3 credits left"}
           </span>
@@ -281,21 +280,21 @@ export default function Playground() {
       </div>
 
       {/* Signed-in layout: sidebar + main */}
-      <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
+      <div className="pg-layout">
         {user && <ProjectsSidebar activeProject="Mobile onboarding" />}
 
         <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 16 }}>
           {/* Input area */}
           <div style={{ border: "1px solid var(--border)", borderRadius: 8, padding: 16, background: "var(--muted)", display: "flex", flexDirection: "column", gap: 12 }}>
-            <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-              <div style={{ flex: 1, background: "var(--card)", border: "1px solid var(--input)", borderRadius: 6, padding: "12px 14px", minHeight: 76, display: "flex", flexDirection: "column", gap: 8 }}>
+            <div className="pg-input">
+              <div style={{ flex: 1, minWidth: 0, background: "var(--card)", border: "1px solid var(--input)", borderRadius: 6, padding: "12px 14px", minHeight: 76, display: "flex", flexDirection: "column", gap: 8 }}>
                 <span style={{ fontSize: 13, lineHeight: "20px", color: "var(--fg1)" }}>Onboarding drops off at step two on mobile — I think the value prop is buried. Work out what to change and show me.</span>
                 <span style={{ display: "flex", alignItems: "center", gap: 6, fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg2)" }}>
                   <span style={{ width: 2, height: 13, background: "var(--brand-800)", display: "block" }} />
                   brainstorm mode — half-formed is fine
                 </span>
               </div>
-              <div style={{ width: 220, display: "flex", flexDirection: "column", gap: 8 }}>
+              <div className="pg-input-context">
                 <span style={{ display: "flex", alignItems: "center", gap: 8, height: 32, padding: "0 10px", border: "1px solid var(--border)", borderRadius: 6, background: "var(--card)", fontSize: 13, color: "var(--fg1)" }}>
                   <span style={{ display: "inline-flex", alignItems: "center", height: 20, padding: "0 6px", borderRadius: 6, background: "rgba(2,132,199,.06)", border: "1px solid rgba(2,132,199,.12)", color: "var(--sky-800)", fontSize: 12, fontWeight: 500 }}>Notion</span>
                   Onboarding research
@@ -307,7 +306,7 @@ export default function Playground() {
                 <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, height: 32, border: "1px dashed var(--stone-300)", borderRadius: 6, fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg2)" }}>+ drop a file or paste a link</span>
               </div>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, paddingTop: 12, borderTop: "1px solid var(--border)" }}>
+            <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap" as const, gap: 12, paddingTop: 12, borderTop: "1px solid var(--border)" }}>
               <span className="btn-primary" style={{ height: 32, padding: "0 14px", cursor: "default" }}>Run — 1 credit</span>
               <span style={{ fontSize: 13, color: "var(--fg2)", marginRight: "auto" }}>
                 {user
@@ -324,7 +323,7 @@ export default function Playground() {
           </div>
 
           {/* Canvas tabs */}
-          <div style={{ display: "flex", gap: 4, padding: 3, borderRadius: 8, background: "var(--muted)", border: "1px solid var(--border)", maxWidth: 520 }}>
+          <div style={{ display: "flex", gap: 4, padding: 3, borderRadius: 8, background: "var(--muted)", border: "1px solid var(--border)", maxWidth: 520, overflowX: "auto" }} data-scroller>
             {(["doc","sheet","proto","dash"] as Tab[]).map(t => (
               <button key={t} type="button" onClick={() => setTab(t)} style={{
                 flex: 1, height: 32, border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13,
@@ -357,7 +356,7 @@ export default function Playground() {
           </div>
 
           {!user && (
-            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap" as const, gap: 16 }}>
               <a href="#waitlist" className="btn-primary">Get early access</a>
               <span style={{ fontSize: 13, color: "var(--fg2)" }}>Playground projects aren't saved — early access gives you a real workspace with folders, team and credits.</span>
             </div>

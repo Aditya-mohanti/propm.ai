@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, IBM_Plex_Serif, DM_Mono } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/providers";
@@ -27,6 +27,14 @@ export const metadata: Metadata = {
   title: "ProPM — Assemble the product team you wish you had.",
   description:
     "Customizable AI agents — PRD, GTM, market research, SQL, design — working on real docs, sheets, prototypes and dashboards. One workspace instead of six tabs.",
+};
+
+// Stated explicitly so the landing page scales to the device width and
+// stays zoomable (never maximum-scale: 1, which blocks pinch zoom).
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {

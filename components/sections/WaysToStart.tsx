@@ -1,14 +1,14 @@
 export default function WaysToStart() {
   return (
-    <div style={{ background: "var(--card)", borderRadius: 12, padding: 40 }}>
+    <div className="section">
       <div style={{ maxWidth: "60ch", marginBottom: 28 }}>
         <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg2)", marginBottom: 8 }}>three ways to start</div>
-        <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 30, fontWeight: 600, letterSpacing: "-0.01em", margin: 0 }}>
+        <h2 className="h2">
           Pick the depth that fits how you work.
         </h2>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
+      <div className="grid-3">
         {/* 01 */}
         <div style={{ border: "1px solid var(--border)", borderRadius: 8, padding: 24, display: "flex", flexDirection: "column", gap: 12 }}>
           <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg2)" }}>01 · solo</span>

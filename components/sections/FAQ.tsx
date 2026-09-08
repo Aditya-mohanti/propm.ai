@@ -9,11 +9,11 @@ const QA = [
 
 export default function FAQ() {
   return (
-    <div id="faq" style={{ background: "var(--card)", borderRadius: 12, padding: 40 }}>
-      <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 30, fontWeight: 600, letterSpacing: "-0.01em", margin: "0 0 24px" }}>
+    <div id="faq" className="section">
+      <h2 className="h2" style={{ margin: "0 0 24px" }}>
         Questions a skeptical PM asks
       </h2>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 40px" }}>
+      <div className="faq-grid">
         {QA.map((item, i) => (
           <div key={item.q} style={{
             padding: "16px 0",

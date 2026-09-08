@@ -7,17 +7,17 @@ const STEPS = [
 
 export default function HowItWorks() {
   return (
-    <div id="how" style={{ background: "var(--card)", borderRadius: 12, display: "grid", gridTemplateColumns: "1.05fr 1fr" }}>
+    <div id="how" className="split split-wide" style={{ background: "var(--card)", borderRadius: 12 }}>
       {/* Left: agent creator panel */}
-      <div style={{ padding: 40, borderRight: "1px solid var(--border)" }}>
+      <div className="split-pane-first" style={{ padding: "var(--sec-y) var(--sec-x)" }}>
         <div style={{ border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden", boxShadow: "var(--shadow-sm)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "12px 16px", borderBottom: "1px solid var(--border)", background: "var(--muted)" }}>
             <span style={{ fontSize: 13, fontWeight: 600 }}>New agent</span>
             <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg2)", marginLeft: "auto" }}>draft</span>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "172px 1fr" }}>
+          <div className="agent-panel">
             {/* Sidebar */}
-            <div style={{ borderRight: "1px solid var(--border)", padding: 12, display: "flex", flexDirection: "column", gap: 2, background: "var(--muted)" }}>
+            <div className="agent-panel-aside" style={{ padding: 12, display: "flex", flexDirection: "column", gap: 2, background: "var(--muted)" }}>
               <span style={{ fontSize: 12, color: "var(--fg2)", padding: "0 8px 8px" }}>Base</span>
               <span style={{ height: 32, display: "flex", alignItems: "center", padding: "0 8px", borderRadius: 4, background: "var(--card)", border: "1px solid var(--brand-tint-strong)", color: "var(--brand-900)", fontSize: 13, fontWeight: 500 }}>PRD Writer</span>
               {["GTM Planner", "Market Research", "SQL Analyst", "Design"].map(n => (
@@ -67,11 +67,11 @@ export default function HowItWorks() {
       </div>
 
       {/* Right: steps */}
-      <div style={{ padding: 40 }}>
-        <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 30, fontWeight: 600, letterSpacing: "-0.01em", maxWidth: "22ch", margin: 0 }}>
+      <div className="split-pane-last" style={{ padding: "var(--sec-y) var(--sec-x)" }}>
+        <h2 className="h2" style={{ maxWidth: "22ch" }}>
           Create and customize your own agents.
         </h2>
-        <p style={{ fontSize: 16, lineHeight: "26px", color: "var(--fg2)", marginTop: 12, maxWidth: "44ch", textWrap: "pretty" as const }}>
+        <p className="body-lg" style={{ color: "var(--fg2)", marginTop: 12, maxWidth: "44ch", textWrap: "pretty" as const }}>
           Start from a template or from nothing. Four steps, and it stays yours — instructions, context, canvas.
         </p>
         <div style={{ display: "flex", flexDirection: "column", marginTop: 28 }}>

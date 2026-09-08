@@ -1,17 +1,17 @@
 export default function TheGap() {
   return (
-    <div style={{ background: "var(--card)", borderRadius: 12, padding: 40 }}>
+    <div className="section">
       <div style={{ maxWidth: "64ch" }}>
         <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg2)", marginBottom: 8 }}>the gap</div>
-        <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 30, fontWeight: 600, letterSpacing: "-0.01em", margin: 0 }}>
+        <h2 className="h2">
           The idea was never the hard part.
         </h2>
-        <p style={{ fontSize: 16, lineHeight: "26px", color: "var(--fg2)", marginTop: 10, textWrap: "pretty" as const }}>
+        <p className="body-lg" style={{ color: "var(--fg2)", marginTop: 10, textWrap: "pretty" as const }}>
           Between &ldquo;I know what we should build&rdquo; and a spec your team will act on sits a week of assembly work. That week is where most good ideas quietly die.
         </p>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginTop: 28 }}>
+      <div className="grid-3" style={{ marginTop: 28 }}>
         <div style={{ border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden" }}>
           <div style={{ height: 3, background: "var(--stone-300)" }} />
           <div style={{ padding: 20 }}>
@@ -41,10 +41,10 @@ export default function TheGap() {
       </div>
 
       <div style={{
-        display: "flex", alignItems: "center", gap: 16, marginTop: 16,
-        padding: "20px 24px", borderRadius: 8, background: "var(--muted)", border: "1px solid var(--border)",
+        display: "flex", alignItems: "center", gap: 16, marginTop: 16, flexWrap: "wrap" as const,
+        padding: "20px clamp(16px, 3vw, 24px)", borderRadius: 8, background: "var(--muted)", border: "1px solid var(--border)",
       }}>
-        <span style={{ fontFamily: "var(--font-serif)", fontSize: 24, fontWeight: 600, letterSpacing: "-0.01em", marginRight: "auto" }}>
+        <span className="h3" style={{ marginRight: "auto" }}>
           PmPro.ai takes the week, not the thinking.
         </span>
         <a href="#waitlist" className="btn-primary" style={{ flexShrink: 0 }}>Get early access</a>

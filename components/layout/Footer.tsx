@@ -3,7 +3,8 @@ export default function Footer() {
     <footer style={{
       display: "flex",
       alignItems: "center",
-      gap: 24,
+      flexWrap: "wrap",
+      gap: 16,
       padding: "20px 8px 12px",
     }}>
       <span style={{

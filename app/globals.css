@@ -316,3 +316,340 @@ a:hover { color: var(--primary-hover); }
   .signin-grid { grid-template-columns: minmax(0, 1fr); }
   .signin-aside { display: none; }
 }
+
+/* =========================================================
+   Landing page — responsive layout primitives
+
+   The marketing sections are written with inline styles, which
+   cannot carry media queries. Everything that has to change with
+   the viewport (section padding, column counts, heading sizes,
+   the two-pane splits) lives here as a class the section opts
+   into, so there is exactly one place where the breakpoints are
+   defined and every section bends at the same widths.
+
+   Breakpoints: 1100 (tablet landscape), 900 (tablet), 640 (phone).
+   ========================================================= */
+
+:root {
+  --sec-x: 40px;   /* section inline padding  */
+  --sec-y: 40px;   /* section block padding   */
+  --sec-gap: 16px; /* gap between cards in a section grid */
+}
+@media (max-width: 900px) {
+  :root { --sec-x: 24px; --sec-y: 32px; --sec-gap: 12px; }
+}
+@media (max-width: 640px) {
+  :root { --sec-x: 18px; --sec-y: 26px; --sec-gap: 10px; }
+}
+
+/* The page never scrolls sideways, whatever a canvas inside it does. */
+/* `clip`, not `hidden`: hidden would turn the body into a scroll
+   container and break the sticky header inside it. */
+html, body { max-width: 100%; overflow-x: clip; }
+
+/* Jumping to a section lands it just below the top edge rather than
+   flush against it, so every anchor stops in the same place. */
+.page-shell [id] { scroll-margin-top: 16px; }
+
+/* Momentum scrolling stays inside a scroller rather than chaining
+   to the page, which is what makes the page feel jumpy on touch. */
+[data-scroller] { overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
+
+/* ── Section shell ── */
+.section {
+  background: var(--card);
+  border-radius: var(--radius-xl);
+  padding: var(--sec-y) var(--sec-x);
+}
+
+/* ── Section header: title block beside an aside, stacked when narrow ── */
+.section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+}
+@media (max-width: 760px) {
+  .section-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .section-head > .section-head-aside { align-items: flex-start !important; }
+}
+
+/* ── Fluid headings ── */
+.h1 {
+  font-size: clamp(30px, 5.4vw, 48px);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+  margin: 0;
+}
+.h2 {
+  font-family: var(--font-serif);
+  font-size: clamp(23px, 3.2vw, 30px);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  font-weight: 600;
+  margin: 0;
+}
+.h3 {
+  font-family: var(--font-serif);
+  font-size: clamp(19px, 2.4vw, 24px);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  font-weight: 600;
+  margin: 0;
+}
+.body-lg {
+  font-size: clamp(14px, 1.6vw, 16px);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ── Column grids ── */
+.grid-2, .grid-3, .grid-6 { display: grid; gap: var(--sec-gap); }
+.grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid-6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+
+@media (max-width: 1100px) {
+  .grid-6 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 900px) {
+  .grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .grid-2, .grid-3, .grid-6 { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ── Two-pane split: a divider that turns from vertical to horizontal ── */
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+.split-wide { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); }
+.split > .split-pane-first { border-right: 1px solid var(--border); }
+@media (max-width: 900px) {
+  .split, .split-wide { grid-template-columns: minmax(0, 1fr); }
+  .split > .split-pane-first {
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+  /* A pane rounded for the right-hand column has to round at the bottom
+     once it sits underneath instead of beside. */
+  .split > .split-pane-last { border-radius: 0 0 var(--radius-xl) var(--radius-xl) !important; }
+}
+
+/* ── Sidebar + detail (stage list, template rails) ── */
+.split-aside {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: var(--sec-gap);
+}
+@media (max-width: 900px) {
+  .split-aside { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ── Horizontal card rail ── */
+.rail {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  padding: 0 var(--sec-x) 4px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  overscroll-behavior-x: contain;
+}
+.rail::-webkit-scrollbar { display: none; }
+.rail > * { scroll-snap-align: start; flex: 0 0 288px; }
+@media (max-width: 640px) {
+  .rail > * { flex: 0 0 min(288px, 82vw); }
+}
+
+/* ── Things that only make sense on a wide screen ── */
+@media (max-width: 900px) {
+  .hide-md { display: none !important; }
+}
+@media (max-width: 640px) {
+  .hide-sm { display: none !important; }
+  /* Buttons and CTAs go full width rather than sitting stranded. */
+  .stack-sm { flex-direction: column !important; align-items: stretch !important; }
+  .stack-sm > .btn-primary,
+  .stack-sm > .btn-ghost { justify-content: center; }
+}
+
+/* Comfortable tap targets on touch devices. */
+@media (hover: none) {
+  .btn-primary, .btn-ghost { min-height: 44px; }
+}
+
+/* ── Hero header ── */
+.hero-header {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding: 16px var(--sec-x);
+  border-bottom: 1px solid var(--border);
+}
+.hero-nav {
+  display: flex;
+  gap: 24px;
+  font-size: 13px;
+  align-items: center;
+}
+.hero-menu-btn { display: none; }
+
+@media (max-width: 1180px) {
+  .hero-nav { gap: 16px; font-size: 12px; }
+}
+@media (max-width: 1000px) {
+  .hero-header { gap: 12px; }
+  /* The link row cannot fit, so it moves into a disclosure panel. */
+  .hero-nav {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 20;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    font-size: 14px;
+    padding: 8px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow-lg);
+  }
+  .hero-nav[data-open="true"] { display: flex; }
+  .hero-nav > * {
+    padding: 12px 10px;
+    border-radius: var(--radius-md);
+    text-align: left;
+  }
+  .hero-nav > *:hover { background: var(--hover); }
+  .hero-menu-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--fg1);
+    cursor: pointer;
+  }
+}
+
+/* ── Hero body ── */
+.hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.hero-copy {
+  padding: clamp(32px, 5vw, 64px) var(--sec-x) clamp(28px, 4.5vw, 56px);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  border-right: 1px solid var(--border);
+}
+.hero-visual {
+  padding: clamp(18px, 3vw, 32px);
+  background: var(--muted);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.hero-stats { display: flex; gap: 8px; }
+
+@media (max-width: 980px) {
+  .hero-grid { grid-template-columns: minmax(0, 1fr); }
+  .hero-copy { border-right: 0; border-bottom: 1px solid var(--border); gap: 20px; }
+}
+@media (max-width: 520px) {
+  .hero-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hero-stats > *:first-child { grid-column: 1 / -1; }
+}
+
+.hero-agents {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+@media (max-width: 520px) {
+  .hero-agents { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* ── The create-agent panel in "How it works" ── */
+.agent-panel {
+  display: grid;
+  grid-template-columns: 172px minmax(0, 1fr);
+}
+.agent-panel-aside { border-right: 1px solid var(--border); }
+@media (max-width: 620px) {
+  .agent-panel { grid-template-columns: minmax(0, 1fr); }
+  .agent-panel-aside {
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+}
+
+/* ── FAQ: two columns of Q/A, one on a phone ── */
+.faq-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 40px;
+}
+@media (max-width: 760px) {
+  .faq-grid { grid-template-columns: minmax(0, 1fr); gap: 0; }
+}
+
+/* ── Closing CTA ── */
+.cta-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 460px;
+  gap: 48px;
+  align-items: center;
+  padding: clamp(32px, 5vw, 56px) var(--sec-x);
+}
+@media (max-width: 1000px) {
+  .cta-grid { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+}
+
+@media (max-width: 760px) {
+  /* In one column only the final answer needs a closing rule. */
+  .faq-grid > *:nth-last-child(2) { border-bottom: 0 !important; }
+}
+
+/* ── Playground ── */
+.pg-layout { display: flex; gap: 16px; align-items: flex-start; }
+.pg-sidebar { width: 240px; flex-shrink: 0; }
+.pg-input { display: flex; gap: 12px; align-items: flex-start; }
+.pg-input-context { width: 220px; flex-shrink: 0; display: flex; flex-direction: column; gap: 8px; }
+.pg-doc { display: grid; grid-template-columns: minmax(0, 1fr) 280px; }
+.pg-doc-notes { border-left: 1px solid var(--border); }
+.pg-proto { display: grid; grid-template-columns: 200px minmax(0, 1fr); }
+.pg-proto-aside { border-right: 1px solid var(--border); }
+.pg-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.pg-charts { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 12px; flex: 1; }
+/* The sizing table keeps its columns and scrolls instead of crushing them. */
+.pg-sheet > * { min-width: 460px; }
+
+@media (max-width: 1000px) {
+  .pg-layout { flex-direction: column; }
+  .pg-sidebar { width: 100%; }
+  .pg-doc { grid-template-columns: minmax(0, 1fr); }
+  .pg-doc-notes { border-left: 0; border-top: 1px solid var(--border); }
+  .pg-charts { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 760px) {
+  .pg-input { flex-direction: column; }
+  .pg-input-context { width: 100%; }
+  .pg-proto { grid-template-columns: minmax(0, 1fr); }
+  .pg-proto-aside { border-right: 0; border-bottom: 1px solid var(--border); }
+}
+@media (max-width: 640px) {
+  .pg-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

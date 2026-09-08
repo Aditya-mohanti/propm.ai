@@ -104,15 +104,15 @@ export default function Templates() {
   }
 
   return (
-    <div id="templates" style={{ background: "var(--card)", borderRadius: 12, padding: "40px 0" }}>
-      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 32, padding: "0 40px 24px" }}>
+    <div id="templates" style={{ background: "var(--card)", borderRadius: 12, padding: "var(--sec-y) 0" }}>
+      <div className="section-head" style={{ padding: "0 var(--sec-x) 24px" }}>
         <div>
           <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg2)", marginBottom: 8 }}>agent templates</div>
-          <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 30, fontWeight: 600, letterSpacing: "-0.01em", margin: 0 }}>
+          <h2 className="h2">
             Start with someone who knows the job.
           </h2>
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div className="section-head-aside" style={{ display: "flex", gap: 8 }}>
           {(["prev", "next"] as const).map(d => (
             <button key={d} type="button" aria-label={d === "prev" ? "Previous templates" : "Next templates"} onClick={() => scroll(d)} style={{
               width: 32, height: 32, border: "1px solid var(--border)", borderRadius: 6,
@@ -122,16 +122,11 @@ export default function Templates() {
         </div>
       </div>
 
-      <div ref={scrollRef} style={{
-        display: "flex", gap: 12, overflowX: "auto", scrollSnapType: "x mandatory",
-        padding: "0 40px 4px",
-        scrollbarWidth: "none", msOverflowStyle: "none",
-      }}>
+      <div ref={scrollRef} className="rail" data-scroller>
         {TEMPLATES.map(t => {
           const Preview = PREVIEWS[t.preview];
           return (
             <div key={t.name} style={{
-              scrollSnapAlign: "start", flex: "0 0 288px",
               border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden",
             }}>
               <Preview />
@@ -147,7 +142,6 @@ export default function Templates() {
 
         {/* From scratch */}
         <div style={{
-          scrollSnapAlign: "start", flex: "0 0 288px",
           border: "1px solid var(--primary)", borderRadius: 8, background: "var(--primary)",
           padding: 20, display: "flex", flexDirection: "column", gap: 10, minHeight: 236, cursor: "pointer",
         }}>

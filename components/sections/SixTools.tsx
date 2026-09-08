@@ -9,13 +9,13 @@ const TOOLS = [
 
 export default function SixTools() {
   return (
-    <div style={{ background: "var(--card)", borderRadius: 12, padding: "32px 40px 40px" }}>
-      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 20 }}>
-        <h3 style={{ fontFamily: "var(--font-serif)", fontSize: 24, fontWeight: 600, margin: 0 }}>Six tools, one decision</h3>
-        <span style={{ fontSize: 13, color: "var(--fg2)" }}>What shipping one feature costs you today</span>
+    <div className="section">
+      <div className="section-head" style={{ alignItems: "baseline", marginBottom: 20 }}>
+        <h3 className="h3">Six tools, one decision</h3>
+        <span className="section-head-aside" style={{ fontSize: 13, color: "var(--fg2)" }}>What shipping one feature costs you today</span>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(6,1fr)", gap: 12 }}>
+      <div className="grid-6">
         {TOOLS.map((t) => (
           <div key={t.n} style={{
             border: "1px solid var(--border)", borderRadius: 8, padding: 18,
@@ -39,14 +39,11 @@ export default function SixTools() {
 
       <div style={{
         display: "flex", alignItems: "center", gap: 16, marginTop: 16,
-        padding: "20px 24px", borderRadius: 8,
+        padding: "20px clamp(16px, 3vw, 24px)", borderRadius: 8,
         background: "var(--brand-50)", border: "1px solid var(--brand-tint-border)",
       }}>
         <span style={{ fontSize: 20, color: "var(--brand-800)" }}>→</span>
-        <span style={{
-          fontFamily: "var(--font-serif)", fontSize: 24, fontWeight: 600,
-          color: "var(--brand-900)", letterSpacing: "-0.01em",
-        }}>
+        <span className="h3" style={{ color: "var(--brand-900)" }}>
           One workspace. Agents that already know your product.
         </span>
       </div>

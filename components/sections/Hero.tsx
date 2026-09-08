@@ -15,30 +15,33 @@ const AGENTS = [
   { delay: 1.6,  color: "var(--purple-500)", tagColor: "rgba(168,85,247,.05)", tagBorder: "rgba(168,85,247,.1)", tagText: "var(--purple-800)", tag: "Prototype", name: "Design",      id: "agent_05" },
 ];
 
+const NAV_LINKS: [string, string][] = [
+  ["#how", "How it works"], ["#templates", "Agents"],
+  ["#anatomy", "Anatomy of a run"], ["#playground", "Playground"],
+  ["#today", "What works today"], ["#faq", "FAQ"],
+];
+
 export default function Hero() {
   const { user, signOut } = useAuth();
   const [queriesOpen, setQueriesOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <div style={{ background: "var(--card)", borderRadius: 12, overflow: "hidden" }}>
       {queriesOpen && <QueriesDialog onClose={() => setQueriesOpen(false)} />}
-      <header style={{
-        display: "flex", alignItems: "center", gap: 32,
-        padding: "16px 40px", borderBottom: "1px solid var(--border)",
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginRight: "auto" }}>
+      <header className="hero-header" style={{ position: "relative" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginRight: "auto", minWidth: 0 }}>
           <Logo size={24} />
           <span style={{ fontFamily: "var(--font-serif)", fontSize: 18, fontWeight: 600, letterSpacing: "-0.01em" }}>
             PmPro.ai
           </span>
-          <span className="tag tag-brand" style={{ marginLeft: 4 }}>Beta</span>
+          <span className="tag tag-brand hide-sm" style={{ marginLeft: 4 }}>Beta</span>
         </div>
-        <nav style={{ display: "flex", gap: 24, fontSize: 13 }}>
-          {[
-            ["#how", "How it works"], ["#templates", "Agents"],
-            ["#anatomy", "Anatomy of a run"], ["#playground", "Playground"],
-            ["#today", "What works today"], ["#faq", "FAQ"],
-          ].map(([href, label]) => (
+
+        {/* Above 1000px this is the inline link row; below it, a disclosure
+            panel the menu button opens. Tapping a link closes it again. */}
+        <nav className="hero-nav" data-open={menuOpen} onClick={() => setMenuOpen(false)}>
+          {NAV_LINKS.map(([href, label]) => (
             <a key={href} href={href} style={{ color: "var(--fg2)", textDecoration: "none" }}>{label}</a>
           ))}
           <button
@@ -46,16 +49,17 @@ export default function Hero() {
             onClick={() => setQueriesOpen(true)}
             style={{
               border: 0, background: "transparent", padding: 0,
-              fontFamily: "inherit", fontSize: 13, color: "var(--brand-800)",
-              cursor: "pointer",
+              fontFamily: "inherit", fontSize: "inherit", color: "var(--brand-800)",
+              cursor: "pointer", textAlign: "inherit",
             }}
           >
             Any queries?
           </button>
         </nav>
+
         {user ? (
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "0 10px", height: 32, borderRadius: 6, border: "1px solid var(--border)", background: "var(--muted)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
+            <div className="hide-sm" style={{ display: "flex", alignItems: "center", gap: 6, padding: "0 10px", height: 32, borderRadius: 6, border: "1px solid var(--border)", background: "var(--muted)" }}>
               <span style={{
                 width: 20, height: 20, borderRadius: "50%",
                 background: "var(--brand-100)", border: "1px solid var(--brand-200)",
@@ -68,11 +72,12 @@ export default function Hero() {
                 {user.name}
               </span>
             </div>
-            <a href="#playground" className="btn-primary" style={{ height: 32, padding: "0 14px" }}>
+            <a href="#playground" className="btn-primary" style={{ height: 32, padding: "0 14px", whiteSpace: "nowrap" }}>
               Open workspace →
             </a>
             <button
               onClick={signOut}
+              className="hide-md"
               style={{
                 height: 32, padding: "0 10px", border: "1px solid var(--border)",
                 borderRadius: 6, background: "transparent", fontSize: 13,
@@ -83,36 +88,51 @@ export default function Hero() {
             </button>
           </div>
         ) : (
-          <a href="#waitlist" className="btn-primary" style={{ height: 32, padding: "0 14px" }}>
+          <a href="#waitlist" className="btn-primary" style={{ height: 32, padding: "0 14px", whiteSpace: "nowrap" }}>
             Join ProPM
           </a>
         )}
+
+        <button
+          type="button"
+          className="hero-menu-btn"
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen(o => !o)}
+        >
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+            {menuOpen ? (
+              <>
+                <path d="M4 4l10 10" />
+                <path d="M14 4L4 14" />
+              </>
+            ) : (
+              <>
+                <path d="M2.5 5h13" />
+                <path d="M2.5 9h13" />
+                <path d="M2.5 13h13" />
+              </>
+            )}
+          </svg>
+        </button>
       </header>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
+      <div className="hero-grid">
         {/* Left: headline + form + stats */}
-        <div style={{
-          padding: "64px 40px 56px",
-          display: "flex", flexDirection: "column", gap: 24,
-          borderRight: "1px solid var(--border)",
-        }}>
+        <div className="hero-copy">
           <div style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg2)" }}>
             <span style={{
               width: 6, height: 6, borderRadius: 9999, background: "var(--brand-600)",
-              display: "block", animation: "pulseDot 2.4s ease-in-out infinite",
+              display: "block", flexShrink: 0, animation: "pulseDot 2.4s ease-in-out infinite",
             }} />
             {user ? `Welcome back, ${user.name}` : "Early access · built by a PM, in the open"}
           </div>
 
-          <h1 style={{
-            fontFamily: "var(--font-sans)", fontSize: 48, fontWeight: 600,
-            lineHeight: "52px", letterSpacing: "-0.02em",
-            maxWidth: "16ch", textWrap: "balance" as const, margin: 0,
-          }}>
+          <h1 className="h1" style={{ maxWidth: "16ch", textWrap: "balance" as const }}>
             Assemble the product team you wish you had.
           </h1>
 
-          <p style={{ fontSize: 16, lineHeight: "26px", color: "var(--fg2)", maxWidth: "46ch", textWrap: "pretty" as const, margin: 0 }}>
+          <p className="body-lg" style={{ color: "var(--fg2)", maxWidth: "46ch", textWrap: "pretty" as const }}>
             Customizable AI agents — PRD, GTM, market research, SQL, design — working on real docs, sheets, prototypes and dashboards. One workspace instead of six tabs.
           </p>
 
@@ -126,8 +146,8 @@ export default function Hero() {
                 <span style={{ fontSize: 13, fontWeight: 600, color: "var(--brand-900)" }}>Your workspace is ready.</span>
                 <span style={{ fontSize: 12, color: "var(--fg2)" }}>Pick up where you left off — your agents and projects are waiting.</span>
               </div>
-              <div style={{ display: "flex", gap: 8 }}>
-                <a href="#playground" className="btn-primary" style={{ height: 40, padding: "0 18px", display: "inline-flex", alignItems: "center" }}>
+              <div className="stack-sm" style={{ display: "flex", gap: 8 }}>
+                <a href="#playground" className="btn-primary" style={{ height: 40, padding: "0 18px", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
                   Open workspace →
                 </a>
                 <button
@@ -147,14 +167,14 @@ export default function Hero() {
           )}
 
           {/* Stats */}
-          <div style={{ display: "flex", gap: 8, paddingTop: 24, marginTop: 8, borderTop: "1px solid var(--border)" }}>
+          <div className="hero-stats" style={{ paddingTop: 24, marginTop: 8, borderTop: "1px solid var(--border)" }}>
             {[
               { val: "6 → 1", label: "tools collapsed"       },
               { val: "4",     label: "canvases, not chat logs"},
               { val: "5 min", label: "to your first agent"   },
             ].map(({ val, label }) => (
               <div key={label} style={{
-                flex: 1, padding: "14px 16px",
+                flex: 1, minWidth: 0, padding: "14px 16px",
                 border: "1px solid var(--border)", borderRadius: 8, background: "var(--muted)",
               }}>
                 <div style={{ fontSize: 24, fontWeight: 600, letterSpacing: "-0.01em", fontVariantNumeric: "tabular-nums" }}>{val}</div>
@@ -165,12 +185,12 @@ export default function Hero() {
         </div>
 
         {/* Right: agent grid + doc canvas animation */}
-        <div style={{ padding: 32, background: "var(--muted)", display: "flex", flexDirection: "column", gap: 12 }}>
+        <div className="hero-visual">
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg2)" }}>
             <span>your team</span><span>assembling…</span>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+          <div className="hero-agents">
             {AGENTS.map((a) => (
               <div key={a.id} style={{
                 animation: `agentIn 7s var(--ease-out) infinite`,

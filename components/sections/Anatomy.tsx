@@ -46,21 +46,21 @@ export default function Anatomy() {
   const stage = STAGES[active];
 
   return (
-    <div id="anatomy" style={{ background: "var(--card)", borderRadius: 12, padding: 40 }}>
-      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 32, marginBottom: 24 }}>
+    <div id="anatomy" className="section">
+      <div className="section-head" style={{ marginBottom: 24 }}>
         <div>
           <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg2)", marginBottom: 8 }}>anatomy of a run · 6 stages</div>
-          <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 30, fontWeight: 600, letterSpacing: "-0.01em", margin: 0 }}>
+          <h2 className="h2">
             Everything between your idea and something you can ship.
           </h2>
-          <p style={{ fontSize: 16, lineHeight: "26px", color: "var(--fg2)", marginTop: 10, maxWidth: "62ch", textWrap: "pretty" as const }}>
+          <p className="body-lg" style={{ color: "var(--fg2)", marginTop: 10, maxWidth: "62ch", textWrap: "pretty" as const }}>
             One credit runs all six stages. Pick a stage to see what the agent actually does there.
           </p>
         </div>
-        <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg2)", flexShrink: 0 }}>click a stage</span>
+        <span className="section-head-aside" style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg2)", flexShrink: 0 }}>click a stage</span>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "320px 1fr", gap: 16 }}>
+      <div className="split-aside">
         {/* Stage list */}
         <div style={{ background: "var(--muted)", border: "1px solid var(--border)", borderRadius: 8, padding: 8, display: "flex", flexDirection: "column", gap: 2 }}>
           {STAGES.map((s, i) => {
@@ -96,11 +96,11 @@ export default function Anatomy() {
         <div style={{ border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden", display: "flex", flexDirection: "column" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 20px", borderBottom: "1px solid var(--border)", background: "var(--muted)" }}>
             <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--brand-800)" }}>stage {stage.n}</span>
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg2)", marginLeft: "auto" }}>1 credit covers all six</span>
+            <span className="hide-sm" style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg2)", marginLeft: "auto" }}>1 credit covers all six</span>
           </div>
-          <div style={{ padding: 32, display: "flex", flexDirection: "column", gap: 14, flex: 1 }}>
-            <span style={{ fontFamily: "var(--font-serif)", fontSize: 24, fontWeight: 600, letterSpacing: "-0.01em" }}>{stage.head}</span>
-            <p style={{ fontSize: 16, lineHeight: "26px", color: "var(--fg2)", maxWidth: "60ch", textWrap: "pretty" as const, margin: 0 }}>{stage.body}</p>
+          <div style={{ padding: "clamp(18px, 3vw, 32px)", display: "flex", flexDirection: "column", gap: 14, flex: 1 }}>
+            <span className="h3">{stage.head}</span>
+            <p className="body-lg" style={{ color: "var(--fg2)", maxWidth: "60ch", textWrap: "pretty" as const }}>{stage.body}</p>
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap" as const, marginTop: "auto", paddingTop: 20, borderTop: "1px solid var(--border)" }}>
               {stage.chips.map(c => (
                 <span key={c} style={{

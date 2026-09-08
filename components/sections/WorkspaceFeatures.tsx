@@ -9,15 +9,15 @@ const FEATURES = [
 
 export default function WorkspaceFeatures() {
   return (
-    <div style={{ background: "var(--card)", borderRadius: 12, padding: 40 }}>
-      <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 30, fontWeight: 600, letterSpacing: "-0.01em", margin: "0 0 24px" }}>
+    <div className="section">
+      <h2 className="h2" style={{ margin: "0 0 24px" }}>
         What you get in the workspace
       </h2>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16 }}>
+      <div className="grid-3">
         {FEATURES.map(f => (
           <div key={f.code} style={{ border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden", background: "var(--card)" }}>
             <div style={{
-              padding: "16px 20px", borderBottom: "1px solid var(--border)",
+              padding: "16px clamp(14px, 2.4vw, 20px)", borderBottom: "1px solid var(--border)",
               background: "var(--brand-50)", display: "flex", alignItems: "center", gap: 10,
             }}>
               <span style={{
