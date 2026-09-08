@@ -89,7 +89,7 @@ export default function Header() {
           </button>
         </div>
       ) : (
-        <a href="/api/auth/google" className="btn-primary" style={{ height: 32, padding: "0 14px" }}>
+        <a href="/signin" className="btn-primary" style={{ height: 32, padding: "0 14px" }}>
           Join ProPM
         </a>
       )}

@@ -12,7 +12,7 @@ function fail(origin: string, reason: string, req: Request) {
   return new Response(null, {
     status: 302,
     headers: {
-      Location: `${origin}/?auth=${reason}`,
+      Location: `${origin}/signin?auth=${reason}`,
       "Set-Cookie": clearStateCookie(req),
     },
   });

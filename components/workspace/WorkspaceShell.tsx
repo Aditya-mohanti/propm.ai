@@ -166,7 +166,7 @@ export default function WorkspaceShell() {
             icon={<FolderIcon size={22} />}
             title="Your session ended"
             body="Sign in again with Google to get back to your projects, agents and run history."
-            actions={[{ label: "Sign in with Google", href: "/api/auth/google" }]}
+            actions={[{ label: "Sign in again", href: "/signin?auth=expired" }]}
           />
         </div>
         <DevBar />

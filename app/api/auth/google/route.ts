@@ -13,7 +13,7 @@ export async function GET(req: Request) {
   if (!GOOGLE_CONFIGURED) {
     // Nothing to redirect to, so say why rather than bouncing to a broken
     // Google page with a missing client_id.
-    return Response.redirect(`${origin}/?auth=unconfigured`, 302);
+    return Response.redirect(`${origin}/signin?auth=unconfigured`, 302);
   }
 
   const state = newState();

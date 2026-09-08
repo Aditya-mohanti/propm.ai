@@ -13,7 +13,7 @@ export default async function WorkspacePage() {
   // Gated on the server: without a valid session cookie the workspace is
   // never rendered or sent, so this cannot be bypassed from the client.
   const user = await getSession();
-  if (!user) redirect("/?auth=required");
+  if (!user) redirect("/signin?auth=required");
 
   return <WorkspaceShell />;
 }

@@ -357,3 +357,14 @@ body:has(> [data-workspace]) { background: #161826; }
   .ws-project-grid { grid-template-columns: minmax(0, 1fr); }
   .ws-project-grid > section { position: static; max-height: 560px; }
 }
+
+/* Sign-in screen: form beside a preview of what is behind it. */
+.signin-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  min-height: 100vh;
+}
+@media (max-width: 900px) {
+  .signin-grid { grid-template-columns: minmax(0, 1fr); }
+  .signin-aside { display: none; }
+}
