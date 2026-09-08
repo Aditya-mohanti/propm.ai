@@ -148,3 +148,22 @@ export const GridIcon = (p: P) => (
     <rect x="13" y="13" width="7" height="7" rx="1.5" />
   </S>
 );
+
+/** Disclosure caret. Rotated by the caller rather than swapped for a down arrow. */
+export const CaretIcon = (p: P) => (
+  <S {...p}>
+    <path d="m9 6 6 6-6 6" />
+  </S>
+);
+
+export const PlusIcon = (p: P) => (
+  <S {...p}>
+    <path d="M12 5v14M5 12h14" />
+  </S>
+);
+
+export const MenuIcon = (p: P) => (
+  <S {...p}>
+    <path d="M5 8h14M5 12h14M5 16h14" />
+  </S>
+);

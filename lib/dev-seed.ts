@@ -1,6 +1,6 @@
 import type {
   Agent,
-  ChatMessage,
+  ChatThread,
   Connection,
   Project,
   Run,
@@ -51,6 +51,39 @@ const PROJECTS: Project[] = [
       { kind: "Notion", label: "engagement research" },
       { kind: "SQL", label: "events_weekly" },
       { kind: "Notes", label: "4 call notes" },
+    ],
+    // The shelf every thread on this project reads. One item is marked as
+    // promoted out of a chat, which is what the panel outlines differently.
+    shelf: [
+      {
+        id: "shf_d1",
+        kind: "Goal",
+        name: "Increase user engagement",
+        source: "project owner · 4 Mar",
+        at: hoursAgo(240),
+      },
+      {
+        id: "shf_d2",
+        kind: "PDF",
+        name: "strategy-2026.pdf",
+        source: "uploaded · 4 Mar",
+        at: hoursAgo(238),
+      },
+      {
+        id: "shf_d3",
+        kind: "Doc",
+        name: "Success criteria — draft 4",
+        source: "from PRD Writer · yesterday",
+        fromChat: true,
+        at: hoursAgo(26),
+      },
+      {
+        id: "shf_d4",
+        kind: "SQL",
+        name: "events_weekly",
+        source: "connected · 5 Mar",
+        at: hoursAgo(220),
+      },
     ],
     decisions: [
       {
@@ -162,6 +195,15 @@ const PROJECTS: Project[] = [
     updatedAt: hoursAgo(52),
     agentIds: ["agt_demo2"],
     context: [{ kind: "Goal", label: "Increase D7 retention" }],
+    shelf: [
+      {
+        id: "shf_d5",
+        kind: "Goal",
+        name: "Increase D7 retention",
+        source: "project owner · 1 Mar",
+        at: hoursAgo(300),
+      },
+    ],
     decisions: [
       {
         id: "dec_r1",
@@ -329,23 +371,80 @@ const CONNECTION: Connection = {
   models: ["Claude Sonnet 4.5", "Claude Opus 4.1", "Claude Haiku 4.5"],
 };
 
-/** A short prior thread, so chat history is visible without typing one. */
-const CHATS: Record<string, ChatMessage[]> = {
+/**
+ * Prior threads, so the sidebar tree has something to show without typing.
+ *
+ * More than one on the first project deliberately: a single thread would not
+ * demonstrate the thing the tree exists for, which is separate conversations
+ * inside one project reading the same shelf.
+ */
+const CHATS: Record<string, ChatThread[]> = {
   prj_demo1: [
     {
-      id: "msg_d1",
-      role: "user",
-      content: "What is the biggest risk in the current PRD draft?",
-      at: hoursAgo(3),
+      id: "thr_d1",
+      title: "Biggest risk in draft 3",
+      surface: "prd",
+      createdAt: hoursAgo(3),
+      updatedAt: hoursAgo(3),
+      messages: [
+        {
+          id: "msg_d1",
+          role: "user",
+          content: "What is the biggest risk in the current PRD draft?",
+          at: hoursAgo(3),
+        },
+        {
+          id: "msg_d2",
+          role: "assistant",
+          content:
+            "The success criteria are anchored on a desktop conversion rate, and there is no funnel export to check them against. Until someone owns that export, the 15% CTA target is a guess rather than a target — which is also why it is still marked provisional.",
+          at: hoursAgo(3),
+          provider: "claude",
+          model: "claude-opus-5",
+        },
+      ],
     },
     {
-      id: "msg_d2",
-      role: "assistant",
-      content:
-        "The success criteria are anchored on a desktop conversion rate, and there is no funnel export to check them against. Until someone owns that export, the 15% CTA target is a guess rather than a target — which is also why it is still marked provisional.",
-      at: hoursAgo(3),
-      provider: "claude",
-      model: "claude-opus-5",
+      id: "thr_d2",
+      title: "Where step 2 loses people",
+      surface: "prototype",
+      createdAt: hoursAgo(28),
+      updatedAt: hoursAgo(28),
+      messages: [
+        {
+          id: "msg_d3",
+          role: "user",
+          content: "Where does the current onboarding flow lose people?",
+          at: hoursAgo(28),
+        },
+        {
+          id: "msg_d4",
+          role: "assistant",
+          content:
+            "Step 2 asks for a team invite before any value has been shown, and that screen holds 41% of the drop-off. The sticky CTA decision treats the symptom — the list is simply longer than the fold on short screens.",
+          at: hoursAgo(28),
+          provider: "claude",
+          model: "claude-opus-5",
+        },
+      ],
+    },
+    {
+      id: "thr_d3",
+      title: "New chat",
+      surface: "notes",
+      createdAt: hoursAgo(1),
+      updatedAt: hoursAgo(1),
+      messages: [],
+    },
+  ],
+  prj_demo2: [
+    {
+      id: "thr_d4",
+      title: "New chat",
+      surface: "prd",
+      createdAt: hoursAgo(50),
+      updatedAt: hoursAgo(50),
+      messages: [],
     },
   ],
 };
