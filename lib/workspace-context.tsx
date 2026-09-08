@@ -44,6 +44,30 @@ export interface Canvas {
   name: string;
   status: string;
   detail?: string;
+  /**
+   * What this surface reads from the rest of the project — the
+   * "Goal · … · Decision · …" line under each surface in the overview.
+   */
+  inherits?: string[];
+}
+
+/** A source every surface on the project can read. */
+export interface ContextRef {
+  /** "Goal", "PDF", "Notion", "SQL", "Notes" — rendered as the chip prefix. */
+  kind: string;
+  label: string;
+}
+
+export interface DecisionEntry {
+  id: string;
+  title: string;
+  /** Human date as shown, e.g. "12 Mar". Empty while still open. */
+  when: string;
+  /** Where it was decided off, e.g. "the prototype". */
+  source: string;
+  status: "decided" | "open";
+  /** For open questions: what it is holding up. */
+  note?: string;
 }
 
 export interface Project {
@@ -55,6 +79,19 @@ export interface Project {
   updatedAt: string;
   agentIds: string[];
   canvases: Canvas[];
+
+  /* The fields below are optional so projects stored by an earlier build
+     still parse. Every overview section renders an empty state without
+     them, which is also what a brand-new project looks like. */
+
+  /** Display date the project started, e.g. "4 Mar". */
+  startedAt?: string;
+  /** The headline number, e.g. 12% reach a second session. */
+  metric?: { value: string; label: string };
+  context?: ContextRef[];
+  decisions?: DecisionEntry[];
+  /** Suggested next actions offered in the overview prompt bar. */
+  suggestions?: string[];
 }
 
 export interface Agent {
