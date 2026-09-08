@@ -3,12 +3,13 @@ import {
   newState,
   setStateCookie,
 } from "@/lib/server/session";
+import { publicOrigin } from "@/lib/server/origin";
 
 /** Starts the Google authorisation-code flow. */
 export const runtime = "nodejs";
 
 export async function GET(req: Request) {
-  const origin = new URL(req.url).origin;
+  const origin = publicOrigin(req);
 
   if (!GOOGLE_CONFIGURED) {
     // Nothing to redirect to, so say why rather than bouncing to a broken

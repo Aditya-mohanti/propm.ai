@@ -1,4 +1,5 @@
 import "server-only";
+import { isSecureRequest } from "@/lib/server/origin";
 
 /**
  * Provider credentials.
@@ -99,7 +100,7 @@ function cookie(req: Request, name: string, value: string, maxAge: number) {
     `Max-Age=${maxAge}`,
   ];
   // Localhost is served over http, where a Secure cookie would be dropped.
-  if (new URL(req.url).protocol === "https:") parts.push("Secure");
+  if (isSecureRequest(req)) parts.push("Secure");
   return parts.join("; ");
 }
 

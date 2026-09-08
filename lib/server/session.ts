@@ -1,4 +1,5 @@
 import "server-only";
+import { isSecureRequest } from "@/lib/server/origin";
 import { createHmac, timingSafeEqual, randomBytes } from "node:crypto";
 import { cookies } from "next/headers";
 
@@ -126,7 +127,7 @@ function cookieHeader(req: Request, value: string, maxAge: number) {
     "SameSite=Lax",
     `Max-Age=${maxAge}`,
   ];
-  if (new URL(req.url).protocol === "https:") parts.push("Secure");
+  if (isSecureRequest(req)) parts.push("Secure");
   return parts.join("; ");
 }
 
@@ -154,7 +155,7 @@ export function setStateCookie(req: Request, state: string) {
     "SameSite=Lax",
     "Max-Age=600",
   ];
-  if (new URL(req.url).protocol === "https:") parts.push("Secure");
+  if (isSecureRequest(req)) parts.push("Secure");
   return parts.join("; ");
 }
 
@@ -166,7 +167,7 @@ export function clearStateCookie(req: Request) {
     "SameSite=Lax",
     "Max-Age=0",
   ];
-  if (new URL(req.url).protocol === "https:") parts.push("Secure");
+  if (isSecureRequest(req)) parts.push("Secure");
   return parts.join("; ");
 }
 

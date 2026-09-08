@@ -4,6 +4,7 @@ import {
   readStateCookie,
   setSessionCookie,
 } from "@/lib/server/session";
+import { publicOrigin } from "@/lib/server/origin";
 
 /** Exchanges the authorisation code for a profile and opens a session. */
 export const runtime = "nodejs";
@@ -20,7 +21,7 @@ function fail(origin: string, reason: string, req: Request) {
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
-  const origin = url.origin;
+  const origin = publicOrigin(req);
 
   if (!GOOGLE_CONFIGURED) return fail(origin, "unconfigured", req);
   if (url.searchParams.get("error")) return fail(origin, "denied", req);
